@@ -7,7 +7,16 @@ import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimpl
 
 interface ProfileRepository {
     suspend fun getUserProfilePicture(username: String): Response<UserProfilePicture?>
+    suspend fun uploadUserProfilePicture(image: ByteArray): Response<Boolean?>
+    suspend fun deleteUserProfilePicture(): Response<Boolean?>
+
     suspend fun getUserProfileInfo(username: String): Response<UserProfileInfo?>
+
+    suspend fun isOtherUserWithUsernameExists(username: String): Response<Boolean?>
+    suspend fun isOtherUserWithEmailExists(email: String): Response<Boolean?>
+    suspend fun editProfileInfo(userProfileInfo: UserProfileInfo): Response<Boolean?>
+
+    //    suspend fun uploadPost(username: String): Response<?>
     suspend fun getSimpleUserPosts(
         username: String,
         page: Long,

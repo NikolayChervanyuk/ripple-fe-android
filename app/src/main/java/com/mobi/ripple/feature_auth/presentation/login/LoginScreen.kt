@@ -2,8 +2,13 @@ package com.mobi.ripple.feature_auth.presentation.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -59,6 +64,8 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .safeDrawingPadding()
+            .consumeWindowInsets(WindowInsets.statusBars)
             .padding(PaddingMedium),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top

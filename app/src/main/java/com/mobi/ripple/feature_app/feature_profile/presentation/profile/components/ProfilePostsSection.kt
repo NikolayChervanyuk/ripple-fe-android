@@ -3,6 +3,7 @@ package com.mobi.ripple.feature_app.feature_profile.presentation.profile.compone
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,7 @@ fun ProfilePostsSection(posts: MutableList<UserProfileSimplePostModel>) {
             }
         } else {
             Text(
+                modifier = Modifier.padding(top = 16.dp),
                 text = "No posts uploaded",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface

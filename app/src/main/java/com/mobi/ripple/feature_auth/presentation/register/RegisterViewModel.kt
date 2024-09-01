@@ -3,9 +3,11 @@ package com.mobi.ripple.feature_auth.presentation.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.util.validator.AuthFieldValidator
+import com.mobi.ripple.core.util.invalidateBearerTokens
+import com.mobi.ripple.core.util.validator.FieldValidator
 import com.mobi.ripple.feature_auth.domain.use_case.AuthUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases
+    private val authUseCases: AuthUseCases,
+    private val client: HttpClient
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<RegisterState>(RegisterState())
@@ -45,13 +48,13 @@ class RegisterViewModel @Inject constructor(
             is RegisterEvent.FullNameChanged -> {
                 _state.value.userRegister.fullName = event.newText
                 _state.value.showFullNameInvalidError.value =
-                    !AuthFieldValidator.isFullNameValid(event.newText)
+                    !FieldValidator.isFullNameValid(event.newText)
             }
 
             is RegisterEvent.UsernameChanged -> {
                 _state.value.userRegister.username = event.newText
                 _state.value.isUsernameInvalid.value =
-                    !AuthFieldValidator.isUsernameValid(event.newText)
+                    !FieldValidator.isUsernameValid(event.newText)
 
                 state.value.showUsernameTaken.value = !state.value.isUsernameInvalid.value
 
@@ -73,7 +76,7 @@ class RegisterViewModel @Inject constructor(
             is RegisterEvent.EmailChanged -> {
                 _state.value.userRegister.email = event.newText
                 _state.value.showEmailInvalidError.value =
-                    !AuthFieldValidator.isEmailValid(event.newText)
+                    !FieldValidator.isEmailValid(event.newText)
                 if (!state.value.showEmailInvalidError.value) {
                     isEmailTakenJob = viewModelScope.launch {
                         if (!isDelayPassed(lastTimeEmailChanged)) {
@@ -95,7 +98,7 @@ class RegisterViewModel @Inject constructor(
                     event.newText != state.value.userRegister.password
 
                 _state.value.isPasswordInvalid.value =
-                    !AuthFieldValidator.isPasswordValid(state.value.userRegister.password)
+                    !FieldValidator.isPasswordValid(state.value.userRegister.password)
             }
 
             is RegisterEvent.ConfirmPasswordChanged -> {
@@ -133,6 +136,7 @@ class RegisterViewModel @Inject constructor(
                             if (loginResponse.isError && loginResponse.content == null) {
                                 _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
                             } else {
+                                client.invalidateBearerTokens()
                                 GlobalAppManager.onSuccessfulLogin(loginResponse.content!!)
                             }
                         }

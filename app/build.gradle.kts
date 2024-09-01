@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.coil.compose)
     implementation (libs.timber)
 
     //viewmodel
@@ -113,6 +114,7 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.server.default.headers)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.exifinterface)
 
     implementation(libs.ktor.client.serialization)
     implementation(libs.ktor.client.logging)

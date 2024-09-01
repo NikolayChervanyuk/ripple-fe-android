@@ -3,9 +3,11 @@ package com.mobi.ripple.feature_auth.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.util.validator.AuthFieldValidator
+import com.mobi.ripple.core.util.invalidateBearerTokens
+import com.mobi.ripple.core.util.validator.FieldValidator
 import com.mobi.ripple.feature_auth.domain.use_case.AuthUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases
+    private val authUseCases: AuthUseCases,
+    private val client: HttpClient
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<LoginState>(LoginState())
@@ -38,13 +41,15 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.Login -> {
                 viewModelScope.launch {
                     if (state.value.user.identifier.isNotEmpty() &&
-                        AuthFieldValidator.isPasswordValid(state.value.user.password)
+                        FieldValidator.isPasswordValid(state.value.user.password)
                     ) {
                         val loginResponse =
                             authUseCases.loginUseCase(_state.value.user.asUserLogin())
 
-                        loginResponse.content?.let { GlobalAppManager.onSuccessfulLogin(it) }
-                            ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
+                        loginResponse.content?.let {
+                            client.invalidateBearerTokens()
+                            GlobalAppManager.onSuccessfulLogin(it)
+                        } ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
                     } else _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                 }
             }

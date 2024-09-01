@@ -1,8 +1,11 @@
 package com.mobi.ripple
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mobi.ripple.core.config.BuildConfig
+import com.mobi.ripple.core.theme.OnBackgroundDarkBlue
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.AppScreen
@@ -32,13 +36,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(BuildConfig.DEBUG) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(
+                OnBackgroundDarkBlue.value.toInt(), OnBackgroundDarkBlue.value.toInt()
+            )
+        )
+        if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
         setContent {
             RippleTheme {
                 GlobalAppManager = rootAppManager
                 val rootNavController = rememberNavController()
+
+                //Should check if user is in database
                 val startScreen: RouteType =
                     if (GlobalAppManager.isUserHavingAuthTokens) AppScreenRoute
                     else AuthGraphRoute
@@ -48,14 +60,15 @@ class MainActivity : ComponentActivity() {
                         when (event) {
                             is RootAppManager.RootUiEvent.LogIn -> {
                                 rootNavController.navigate(AppScreenRoute) {
-                                    popUpTo(rootNavController.graph.id){
+                                    popUpTo(rootNavController.graph.id) {
                                         inclusive = true
                                     }
                                 }
                             }
+
                             is RootAppManager.RootUiEvent.LogOut -> {
                                 rootNavController.navigate(AuthGraphRoute) {
-                                    popUpTo(rootNavController.graph.id){
+                                    popUpTo(rootNavController.graph.id) {
                                         inclusive = false
                                     }
                                 }

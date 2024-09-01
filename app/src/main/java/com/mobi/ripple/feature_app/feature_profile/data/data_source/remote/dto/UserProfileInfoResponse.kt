@@ -13,6 +13,7 @@ data class UserProfileInfoResponse(
     val id: String?,
     val fullName: String?,
     val username: String,
+    val email: String?,
     val bio: String?,
     val followers: Long,
     val following: Long,
@@ -24,6 +25,7 @@ data class UserProfileInfoResponse(
     fun asUserProfileInfo() = UserProfileInfo(
         fullName = fullName,
         userName = username,
+        email = email,
         bio = bio,
         followers = followers,
         following = following,

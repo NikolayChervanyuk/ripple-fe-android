@@ -10,8 +10,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mobi.ripple.core.exceptions.JwtClaimNotFoundException
+import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_auth.domain.model.AuthTokens
 import io.jsonwebtoken.Jwts
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -20,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import java.util.Base64
 import javax.inject.Inject
 
@@ -58,34 +62,33 @@ class RootAppManager @Inject constructor(
     }
 
     suspend fun saveAuthTokens(authTokens: AuthTokens): Boolean {
-        if (dataStoreRepository.saveTokens(authTokens)) {
-            this.authTokens = authTokens
-            storedUsername = dataStoreRepository.getStoredUsername()
-            return true
-        }
-        return false
+        var storeSuccessful: Boolean
+        runBlocking { storeSuccessful = dataStoreRepository.saveTokens(authTokens) }
+        this.authTokens = authTokens
+        isUserHavingAuthTokens = true
+        storedUsername = dataStoreRepository.getStoredUsername()
+        return storeSuccessful
     }
 
     private suspend fun clearAuthTokensAndUsername(): Boolean {
         if (dataStoreRepository.clearTokensAndUsername()) {
             authTokens = null
             storedUsername = null
+            isUserHavingAuthTokens = false
             return true
         }
         return false
     }
 
-    fun onSuccessfulLogin(authTokens: AuthTokens) {
-        runBlocking {
-            launch {
-                saveAuthTokens(authTokens)
-                _eventFlow.emit(RootUiEvent.LogIn)
-            }
-        }
+    suspend fun onSuccessfulLogin(authTokens: AuthTokens) {
+        saveAuthTokens(authTokens)
+        Timber.i(getStoredAuthTokens()?.accessToken, getStoredAuthTokens()?.refreshToken)
+        _eventFlow.emit(RootUiEvent.LogIn)
+
     }
 
-    fun onLogout() {
-        runBlocking {
+    suspend fun onLogout() {
+        coroutineScope {
             launch {
                 clearAuthTokensAndUsername()
             }

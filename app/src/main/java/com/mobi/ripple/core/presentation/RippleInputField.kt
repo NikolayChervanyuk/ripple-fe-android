@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,7 +45,7 @@ fun RippleInputField(
     textAlignment: Alignment = Alignment.CenterStart,
     readOnly: Boolean = false,
     onTextChanged: (String) -> Unit = {},
-    onClick: () -> Unit = { },
+    maxLines: Int = 1,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -77,20 +76,24 @@ fun RippleInputField(
         visualTransformation = visualTransformation,
         value = textEntered,
         readOnly = readOnly,
-        textStyle = typography.bodyMedium.copy(color = textColor),
+        textStyle = typography.bodyMedium.copy(
+            color =
+            if (readOnly) colorScheme.onSurfaceVariant
+            else textColor
+        ),
         onValueChange = {
             textEntered = it
             onTextChanged(it)
         },
         cursorBrush = SolidColor(colorScheme.onSurface),
-        maxLines = 1
+        maxLines = maxLines
     ) { innerTextField ->
         Row(
             modifier = Modifier
-                .let {
-                    if (readOnly) it.clickable { onClick() }
-                    else it
-                }
+//                .let {
+//                    if (readOnly) it.clickable { onClick() }
+//                    else it
+//                }
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 12.dp), // inner padding
         ) {

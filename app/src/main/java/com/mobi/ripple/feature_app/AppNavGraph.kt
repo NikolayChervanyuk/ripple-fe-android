@@ -1,12 +1,12 @@
 package com.mobi.ripple.feature_app
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,26 +14,24 @@ import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreS
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreenRoute
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreen
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileScreen
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileViewModel
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profileGraph
 import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreen
 import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreenRoute
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController,
+    mainNavController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    paddingValues: PaddingValues) {
+    coroutineScope: CoroutineScope,
+    paddingValues: PaddingValues
+) {
     NavHost(
-        navController = navController,
+        navController = mainNavController,
         startDestination = FeedScreenRoute,
         modifier = Modifier
-            .windowInsetsPadding(
-                WindowInsets(
-                    bottom = paddingValues.calculateBottomPadding()
-                )
-            )
+            .padding(paddingValues)
+            .consumeWindowInsets(paddingValues)
     ) {
         composable<FeedScreenRoute> {
             //viewmodel here
@@ -47,9 +45,6 @@ fun AppNavGraph(
             //viewmodel here
             ExploreScreen()
         }
-        composable<ProfileScreenRoute> {
-            val profileViewModel = hiltViewModel<ProfileViewModel>()
-            ProfileScreen(profileViewModel, snackbarHostState)
-        }
+        profileGraph(mainNavController, snackbarHostState, coroutineScope)
     }
 }

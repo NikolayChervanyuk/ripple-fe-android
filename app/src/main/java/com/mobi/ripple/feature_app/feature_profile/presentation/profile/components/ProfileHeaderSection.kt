@@ -1,5 +1,13 @@
 package com.mobi.ripple.feature_app.feature_profile.presentation.profile.components
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,18 +18,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +47,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -36,20 +55,41 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.R
+import com.mobi.ripple.core.presentation.OptionItem
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.theme.Shapes
 import com.mobi.ripple.core.util.FormattableNumber
-import com.mobi.ripple.core.util.convertImageByteArrayToBitmap
+import com.mobi.ripple.core.util.ImageUtils
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.model.UserProfileInfoModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 @Composable
 fun ProfileHeaderSection(
     userProfileInfoModel: UserProfileInfoModel,
-    profilePicture: ByteArray,
+    profilePicture: ByteArray?,
     onSettingsClicked: () -> Unit = {},
-    onProfilePictureClicked: () -> Unit = {}
+    onUploadPfpRequested: (Uri) -> Unit,
+    onDeletePfpRequested: () -> Unit,
+    onUploadPostRequested: (Uri) -> Unit
 ) {
+    val pfpImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            it?.let {
+                onUploadPfpRequested.invoke(it)
+            }
+        }
+    )
+    val postImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = {
+            it?.let {
+                onUploadPostRequested(it)
+            }
+        }
+    )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -74,7 +114,14 @@ fun ProfileHeaderSection(
             ) {
                 PfpImage(
                     image = profilePicture,
-                    onProfilePictureClicked = onProfilePictureClicked
+                    onUploadPfpRequested = {
+                        pfpImagePicker.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
+                    onDeletePfpRequested = onDeletePfpRequested
                 )
                 Text(
                     modifier = Modifier.padding(vertical = 8.dp),
@@ -105,7 +152,7 @@ fun ProfileHeaderSection(
             userProfileInfoModel.bio?.let {
                 Text(
                     modifier = Modifier.padding(start = 12.dp, top = 12.dp, end = 12.dp),
-                    text = userProfileInfoModel.bio,
+                    text = userProfileInfoModel.bio!!,
                     textAlign = TextAlign.Justify,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black,
@@ -181,7 +228,13 @@ fun ProfileHeaderSection(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        postImagePicker.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
                     Modifier
                         .height(38.dp),
                     colors = ButtonDefaults.buttonColors()
@@ -213,13 +266,27 @@ fun ProfileHeaderSection(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PfpImage(
-    modifier: Modifier = Modifier,
-    image: ByteArray,
-    onProfilePictureClicked: () -> Unit
+    image: ByteArray?,
+    onUploadPfpRequested: () -> Unit,
+    onDeletePfpRequested: () -> Unit
 ) {
-    if (image.size == 0) {
+    val pfpOptionsSheetState = rememberModalBottomSheetState()
+    val showPfpBottomSheet = rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = showPfpBottomSheet.value) {
+        coroutineScope {
+            launch {
+                if (showPfpBottomSheet.value) {
+                    pfpOptionsSheetState.show()
+                } else pfpOptionsSheetState.hide()
+            }
+        }
+    }
+
+    if (image == null) {
         Image(
             modifier = Modifier
                 .size(130.dp)
@@ -230,7 +297,7 @@ fun PfpImage(
                     color = MaterialTheme.colorScheme.onBackground,
                     shape = CircleShape
                 )
-                .clickable { onProfilePictureClicked() },
+                .clickable { showPfpBottomSheet.value = true },
             painter = painterResource(id = R.drawable.user_profile_btn),
             contentDescription = "userImage"
         )
@@ -245,11 +312,81 @@ fun PfpImage(
                     color = MaterialTheme.colorScheme.onBackground,
                     shape = CircleShape
                 )
-                .clickable { onProfilePictureClicked() },
-            bitmap = convertImageByteArrayToBitmap(image).asImageBitmap(),
+                .clickable { showPfpBottomSheet.value = true },
+            bitmap = ImageUtils.convertImageByteArrayToBitmap(image).asImageBitmap(),
+            contentScale = ContentScale.Crop,
             contentDescription = "userImage"
         )
     }
+    PfpBottomSheet(
+        show = showPfpBottomSheet.value,
+        sheetState = pfpOptionsSheetState,
+        onDismissRequest = { showPfpBottomSheet.value = false },
+        onUploadPfpClicked = {
+            showPfpBottomSheet.value = false
+            onUploadPfpRequested()
+        },
+        onDeletePfpClicked = {
+            showPfpBottomSheet.value = false
+            onDeletePfpRequested()
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PfpBottomSheet(
+    show: Boolean,
+    sheetState: SheetState,
+    onDismissRequest: () -> Unit,
+    onUploadPfpClicked: () -> Unit,
+    onDeletePfpClicked: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = show,
+        enter = expandVertically(
+            expandFrom = Alignment.Bottom,
+            animationSpec = tween(200)
+        ),
+        exit = shrinkVertically(
+            shrinkTowards = Alignment.Bottom,
+            animationSpec = tween(200)
+        )
+    ) {
+        ModalBottomSheet(
+            modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues()),
+            onDismissRequest = { onDismissRequest() },
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                UploadNewPfpOption(onClick = onUploadPfpClicked)
+                DeletePfpOption(onClick = onDeletePfpClicked)
+                Spacer(modifier = Modifier.height(60.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun UploadNewPfpOption(onClick: () -> Unit) {
+    OptionItem(
+        iconId = R.drawable.upload_image_icon,
+        text = "Change profile picture",
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun DeletePfpOption(onClick: () -> Unit) {
+    OptionItem(
+        iconId = R.drawable.delete_icon,
+        text = "Delete profile picture",
+        onClick = onClick
+    )
 }
 
 @Composable
@@ -258,6 +395,7 @@ private fun SettingsIcon(modifier: Modifier = Modifier, onClick: () -> Unit) {
         modifier = modifier
             .padding(top = 12.dp, end = 12.dp)
             .size(26.dp)
+            .clip(CircleShape)
             .clickable { onClick() },
         painter = painterResource(id = R.drawable.setting_icon),
         tint = MaterialTheme.colorScheme.onSurface,
@@ -271,9 +409,11 @@ private fun ProfileHeaderSectionPreview() {
     RippleTheme {
         ProfileHeaderSection(
             UserProfileInfoModel(
-                fullName = "Melih Jekovich",
-                userName = "mhjkoo35",
-                bio = "I am a professional photographer and content creator. I teach people how to make better photos.",
+                fullName = "Melih John",
+                userName = "meho35",
+                email = "s@s.b",
+                bio = "I am a professional photographer and content creator. " +
+                        "I teach people how to make better photos.",
                 followers = 127,
                 following = 123200,
                 isFollowed = true,
@@ -281,7 +421,10 @@ private fun ProfileHeaderSectionPreview() {
                 lastActive = Instant.now(),
                 postsCount = 0L,
             ),
-            ByteArray(0)
+            profilePicture = ByteArray(0),
+            onUploadPfpRequested = {},
+            onDeletePfpRequested = {},
+            onUploadPostRequested = {}
         )
     }
 }

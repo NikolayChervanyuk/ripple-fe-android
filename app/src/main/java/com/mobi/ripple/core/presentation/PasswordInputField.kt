@@ -31,7 +31,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,8 +40,6 @@ import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.theme.SuccessGreen
 import com.mobi.ripple.core.util.validator.PasswordValidator
 import com.mobi.ripple.core.util.validator.PasswordValidator.Companion.PasswordRequirements
-import com.mobi.ripple.feature_auth.presentation.register.components.CheckmarkIcon
-import com.mobi.ripple.feature_auth.presentation.register.components.CrossIcon
 import com.mobi.ripple.feature_auth.presentation.register.components.PasswordNotMatchingText
 import kotlinx.coroutines.launch
 

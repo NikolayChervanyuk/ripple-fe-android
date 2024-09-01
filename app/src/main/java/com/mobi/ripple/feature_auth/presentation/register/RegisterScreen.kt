@@ -3,11 +3,16 @@ package com.mobi.ripple.feature_auth.presentation.register
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +36,7 @@ import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.DefaultSnackbar
 import com.mobi.ripple.core.presentation.Logo
 import com.mobi.ripple.core.presentation.PasswordTextInput
+import com.mobi.ripple.core.presentation.UsernameTextField
 import com.mobi.ripple.core.theme.PaddingMedium
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType
@@ -40,9 +46,7 @@ import com.mobi.ripple.feature_auth.presentation.login.LoginScreenRoute
 import com.mobi.ripple.feature_auth.presentation.register.components.BackButton
 import com.mobi.ripple.feature_auth.presentation.register.components.FullNameTextField
 import com.mobi.ripple.feature_auth.presentation.register.components.HeaderText
-import com.mobi.ripple.feature_auth.presentation.register.components.PasswordNotMatchingText
 import com.mobi.ripple.feature_auth.presentation.register.components.RegistrationErrorText
-import com.mobi.ripple.feature_auth.presentation.register.components.UsernameTextField
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.Serializable
 
@@ -72,13 +76,23 @@ fun RegisterScreen(
         }
     }
 
-    Box(modifier = Modifier.zIndex(1f)){
-        BackButton {
+    Box(
+        modifier = Modifier
+            .safeDrawingPadding()
+            .consumeWindowInsets(WindowInsets.statusBars)
+            .zIndex(1f)
+    ) {
+        BackButton(
+            paddingValues = PaddingValues(start = 16.dp, top = 16.dp)
+        ) {
             viewModel.onEvent(RegisterEvent.BackButtonPressed)
         }
     }
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .safeDrawingPadding()
+            .consumeWindowInsets(WindowInsets.statusBars)
+            .verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
@@ -88,9 +102,11 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Top
         ) {
             //LogoHeader(Modifier.padding(to), stringResource(R.string.join_us))
-            Logo(modifier = Modifier
-                .padding(top = 48.dp)
-                .size(92.dp))
+            Logo(
+                modifier = Modifier
+                    .padding(top = 48.dp)
+                    .size(92.dp)
+            )
             HeaderText("Registration")
             FullNameTextField(
                 modifier = Modifier.padding(bottom = 32.dp),

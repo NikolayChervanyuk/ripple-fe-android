@@ -17,9 +17,8 @@ import kotlinx.serialization.Serializable
 fun NavGraphBuilder.authGraph(navController: NavHostController) {
     navigation<AuthGraphRoute>(startDestination = LoginScreenRoute) {
         composable<LoginScreenRoute> {
-            //viewmodel here
             val viewModel: LoginViewModel = hiltViewModel<LoginViewModel>()
-            LoginScreen(viewModel, navController) //should pass nav controller
+            LoginScreen(viewModel, navController)
         }
         composable<RegisterScreenRoute> {
             val viewModel: RegisterViewModel = hiltViewModel<RegisterViewModel>()

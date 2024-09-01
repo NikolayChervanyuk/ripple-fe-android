@@ -14,8 +14,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.R
+import com.mobi.ripple.core.presentation.InvalidFieldMessage
 import com.mobi.ripple.core.presentation.RippleInputField
-import com.mobi.ripple.core.util.validator.AuthFieldValidator
+import com.mobi.ripple.core.util.validator.FieldValidator
 
 @Composable
 fun FullNameTextField(
@@ -44,7 +45,7 @@ private fun InvalidFullNameMessage(modifier: Modifier = Modifier, show: Boolean)
         modifier = modifier,
         show = show,
         message = "Name should be no more than " +
-                "${AuthFieldValidator.MAX_FULLNAME_LENGTH} characters long"
+                "${FieldValidator.MAX_FULLNAME_LENGTH} characters long"
     )
 }
 

@@ -19,7 +19,7 @@ class ApiRequest<C>(
 
     suspend inline fun <reified T : C> sendRequest(): ApiResponse<T> {
 
-        //TODO: Remove ResponseContent!!!!
+
         try {
             val httpResponse = httpResponseFunction!!.invoke()
                 ?: return ApiResponse(
@@ -29,6 +29,16 @@ class ApiRequest<C>(
                     isError = true
                 )
             val statusCode = httpResponse.status
+
+            if(statusCode == HttpStatusCode.NotFound) {
+                return ApiResponse(
+                    content = null,
+                    errorMessage = HttpStatusCode.NotFound.description,
+                    httpStatusCode = HttpStatusCode.NotFound,
+                    isError = true
+                )
+            }
+
             val isError = statusCode.value > 299
             val parsedResponse = httpResponse.body<ApiRequest<T>>()
             return ApiResponse(

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.mobi.ripple.core.theme.PaddingSmall
 
@@ -22,19 +23,23 @@ fun DefaultSnackbar(hostState: SnackbarHostState, modifier: Modifier = Modifier)
 
     ConstraintLayout(
         modifier = Modifier
+            .zIndex(Float.MAX_VALUE - 1)
             .fillMaxSize()
     ) {
         val (snackBar) = createRefs()
         SnackbarHost(
             hostState = hostState,
-            modifier = Modifier.constrainAs(snackBar) {
-                bottom.linkTo(parent.bottom, margin = 80.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
+            modifier = Modifier
+                .constrainAs(snackBar) {
+                    bottom.linkTo(parent.bottom, margin = 80.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
         ) {
             Snackbar(
-                modifier = Modifier.padding(PaddingSmall),
+                modifier = Modifier
+                    .zIndex(Float.MAX_VALUE)
+                    .padding(PaddingSmall),
                 shape = CircleShape,
             ) {
                 Box(

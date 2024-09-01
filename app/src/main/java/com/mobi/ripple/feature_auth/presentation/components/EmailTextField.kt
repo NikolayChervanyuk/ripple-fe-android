@@ -16,8 +16,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.R
+import com.mobi.ripple.core.presentation.InvalidFieldMessage
 import com.mobi.ripple.core.presentation.RippleInputField
-import com.mobi.ripple.feature_auth.presentation.register.components.InvalidFieldMessage
 
 @Composable
 fun EmailTextField(

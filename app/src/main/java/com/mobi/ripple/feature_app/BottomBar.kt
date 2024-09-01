@@ -1,5 +1,6 @@
 package com.mobi.ripple.feature_app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -24,12 +27,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.RippleBadge
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreenRoute
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileGraphRoute
 import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreenRoute
 
 private sealed class BottomNavItem {
@@ -135,7 +139,7 @@ private sealed class BottomNavItem {
                     )
                 },
                 hasNews = false,
-                screenRoute = ProfileScreenRoute
+                screenRoute = ProfileGraphRoute
             )
     }
 }
@@ -151,6 +155,16 @@ fun BottomBar(navController: NavHostController) {
     )
     val selectedItemIndex = rememberSaveable {
         mutableIntStateOf(0)
+    }
+    val navStackBackEntry by navController.currentBackStackEntryAsState()
+
+    LaunchedEffect(key1 = navStackBackEntry) {
+        when(navStackBackEntry?.destination?.route) {
+            FeedScreenRoute.javaClass.name -> selectedItemIndex.intValue = 0
+            SearchScreenRoute.javaClass.name -> selectedItemIndex.intValue = 1
+            ExploreScreenRoute.javaClass.name -> selectedItemIndex.intValue = 2
+            ProfileGraphRoute.javaClass.name -> selectedItemIndex.intValue = 3
+        }
     }
     NavigationBar(
         Modifier

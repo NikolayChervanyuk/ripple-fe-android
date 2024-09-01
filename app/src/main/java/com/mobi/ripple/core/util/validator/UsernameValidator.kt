@@ -1,7 +1,7 @@
 package com.mobi.ripple.core.util.validator
 
-import com.mobi.ripple.core.util.validator.AuthFieldValidator.Companion.MAX_USERNAME_LENGTH
-import com.mobi.ripple.core.util.validator.AuthFieldValidator.Companion.MIN_USERNAME_LENGTH
+import com.mobi.ripple.core.util.validator.FieldValidator.Companion.MAX_USERNAME_LENGTH
+import com.mobi.ripple.core.util.validator.FieldValidator.Companion.MIN_USERNAME_LENGTH
 
 class UsernameValidator {
     companion object {
