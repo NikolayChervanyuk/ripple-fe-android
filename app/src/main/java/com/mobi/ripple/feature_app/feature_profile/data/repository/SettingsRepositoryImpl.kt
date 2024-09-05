@@ -1,6 +1,6 @@
 package com.mobi.ripple.feature_app.feature_profile.data.repository
 
-import com.mobi.ripple.core.domain.Response
+import com.mobi.ripple.core.domain.model.Response
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.SettingsApiService
 import com.mobi.ripple.feature_app.feature_profile.domain.repository.SettingsRepository
 

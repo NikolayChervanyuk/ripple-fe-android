@@ -4,7 +4,6 @@ import com.mobi.ripple.RootAppManager
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.SettingsApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.SettingsApiServiceImpl
 import com.mobi.ripple.feature_app.feature_profile.data.repository.SettingsRepositoryImpl
-import com.mobi.ripple.feature_app.feature_profile.domain.repository.ProfileRepository
 import com.mobi.ripple.feature_app.feature_profile.domain.repository.SettingsRepository
 import com.mobi.ripple.feature_app.feature_profile.domain.use_case.settings.LogoutAllDevicesUsesCase
 import com.mobi.ripple.feature_app.feature_profile.domain.use_case.settings.SettingsUseCases

@@ -1,6 +1,5 @@
 package com.mobi.ripple.feature_app
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
@@ -29,12 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mobi.ripple.R
-import com.mobi.ripple.core.presentation.RippleBadge
+import com.mobi.ripple.core.presentation.components.RippleBadge
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreenRoute
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.ProfileGraphRoute
-import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.PersonalProfileGraphRoute
+import com.mobi.ripple.feature_app.feature_search.presentation.search.SearchScreenRoute
 
 private sealed class BottomNavItem {
     data class BottomNavItemData(
@@ -139,7 +138,7 @@ private sealed class BottomNavItem {
                     )
                 },
                 hasNews = false,
-                screenRoute = ProfileGraphRoute
+                screenRoute = PersonalProfileGraphRoute
             )
     }
 }
@@ -163,7 +162,7 @@ fun BottomBar(navController: NavHostController) {
             FeedScreenRoute.javaClass.name -> selectedItemIndex.intValue = 0
             SearchScreenRoute.javaClass.name -> selectedItemIndex.intValue = 1
             ExploreScreenRoute.javaClass.name -> selectedItemIndex.intValue = 2
-            ProfileGraphRoute.javaClass.name -> selectedItemIndex.intValue = 3
+            PersonalProfileGraphRoute.javaClass.name -> selectedItemIndex.intValue = 3
         }
     }
     NavigationBar(

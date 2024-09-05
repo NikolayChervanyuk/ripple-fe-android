@@ -3,11 +3,11 @@ package com.mobi.ripple.feature_auth.presentation.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.util.invalidateBearerTokens
+import com.mobi.ripple.core.util.isDelayPassed
 import com.mobi.ripple.core.util.validator.FieldValidator
 import com.mobi.ripple.feature_auth.domain.use_case.AuthUseCases
+import com.mobi.ripple.feature_auth.presentation.login.LoginViewModel.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,8 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases,
-    private val client: HttpClient
+    private val authUseCases: AuthUseCases
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<RegisterState>(RegisterState())
@@ -133,12 +132,10 @@ class RegisterViewModel @Inject constructor(
                             val loginResponse = authUseCases
                                 .loginUseCase(state.value.userRegister.asUserLogin())
 
-                            if (loginResponse.isError && loginResponse.content == null) {
-                                _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
-                            } else {
-                                client.invalidateBearerTokens()
-                                GlobalAppManager.onSuccessfulLogin(loginResponse.content!!)
-                            }
+                            loginResponse.content?.let {
+                                GlobalAppManager
+                                    .onSuccessfulLogin(it)
+                            } ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
                         }
                     }
                 }
@@ -151,10 +148,6 @@ class RegisterViewModel @Inject constructor(
         data object RouteBack : UiEvent()
         data class ShowSnackBar(val message: String) : UiEvent()
 //        data object RouteToMainScreen: UiEvent()
-    }
-
-    private fun isDelayPassed(lastInvoked: Instant, delayMilli: Long = 300L): Boolean {
-        return Instant.now().isAfter(lastInvoked.plusMillis(delayMilli))
     }
 }
 

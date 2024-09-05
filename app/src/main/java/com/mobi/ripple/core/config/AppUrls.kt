@@ -2,7 +2,7 @@ package com.mobi.ripple.core.config
 
 sealed interface AppUrls {
     companion object {
-        const val BASE_URL = "http://192.168.0.123:8080/"
+        const val BASE_URL = "http://192.168.1.5:8080/"
     }
 
     object AuthUrls {
@@ -21,9 +21,16 @@ sealed interface AppUrls {
         fun userProfileInfoUrl(username: String) = "$USER/$username"
         fun existsOtherUserWithUsername(username: String) = "$USERS_OTHER?username=$username"
         fun existsOtherUserWithEmail(email: String) = "$USERS_OTHER?email=$email"
+        const val POST = "/p"
 
         const val UPDATE_USER = USER
 
         fun userSimplePostsUrl(username: String) = "$USER/$username/p"
+    }
+
+    object SearchUrls {
+        private const val USERS = "users"
+        private const val FIND_SIMPLE = "find-simple"
+        fun searchUsersLike(username: String) = "$USERS/$FIND_SIMPLE?like=$username"
     }
 }

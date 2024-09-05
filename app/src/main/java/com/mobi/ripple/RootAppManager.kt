@@ -10,10 +10,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mobi.ripple.core.exceptions.JwtClaimNotFoundException
-import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_auth.domain.model.AuthTokens
 import io.jsonwebtoken.Jwts
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -81,18 +79,20 @@ class RootAppManager @Inject constructor(
     }
 
     suspend fun onSuccessfulLogin(authTokens: AuthTokens) {
-        saveAuthTokens(authTokens)
-        Timber.i(getStoredAuthTokens()?.accessToken, getStoredAuthTokens()?.refreshToken)
-        _eventFlow.emit(RootUiEvent.LogIn)
-
+        coroutineScope {
+            launch {
+                saveAuthTokens(authTokens)
+                _eventFlow.emit(RootUiEvent.LogIn)
+            }
+        }
     }
 
-    suspend fun onLogout() {
+    suspend fun onLogout(routeToLoginPage: Boolean = true) {
         coroutineScope {
             launch {
                 clearAuthTokensAndUsername()
             }
-            launch {
+            if (routeToLoginPage){
                 _eventFlow.emit(RootUiEvent.LogOut)
             }
         }
@@ -196,6 +196,19 @@ class RootAppManager @Inject constructor(
             }
             return null
         }
+
+//        suspend fun updateUsername(newUsername: String): Boolean {
+//            val usernameKey = stringPreferencesKey(DataStoreKeys.USERNAME.keyName)
+//            try {
+//                context.dataStore.edit { settings ->
+//                    settings[usernameKey] = newUsername
+//                }
+//                return true
+//            } catch (e: IOException) {
+//                Log.e("DataStore", "Can't write data to disk")
+//            }
+//            return false
+//        }
 
         suspend fun clearTokensAndUsername(): Boolean {
             val refreshTokenKey = stringPreferencesKey(DataStoreKeys.REFRESH_TOKEN.keyName)

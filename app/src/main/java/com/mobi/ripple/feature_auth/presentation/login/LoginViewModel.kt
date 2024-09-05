@@ -18,11 +18,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authUseCases: AuthUseCases,
-    private val client: HttpClient
+    private val authUseCases: AuthUseCases
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<LoginState>(LoginState())
+    private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
@@ -47,8 +46,8 @@ class LoginViewModel @Inject constructor(
                             authUseCases.loginUseCase(_state.value.user.asUserLogin())
 
                         loginResponse.content?.let {
-                            client.invalidateBearerTokens()
-                            GlobalAppManager.onSuccessfulLogin(it)
+                            GlobalAppManager
+                                .onSuccessfulLogin(it)
                         } ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
                     } else _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                 }

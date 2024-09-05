@@ -1,6 +1,8 @@
 package com.mobi.ripple.feature_app.feature_feed.presentation.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,18 +17,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mobi.ripple.core.presentation.Logo
+import com.mobi.ripple.core.presentation.components.Logo
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.theme.jostFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedTopBar(scrollBehavior: TopAppBarScrollBehavior) {
+    val config = LocalConfiguration.current
     val outlineColor = MaterialTheme.colorScheme.outline
     TopAppBar(
         modifier = Modifier
@@ -39,20 +43,24 @@ fun FeedTopBar(scrollBehavior: TopAppBarScrollBehavior) {
                 )
             },
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Logo(Modifier.size(36.dp))
-                Text(
-                    text = "Ripple",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 12.dp),
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontFamily = jostFamily,
-                        fontWeight = FontWeight.Bold
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Logo(Modifier.size(36.dp))
+                    Text(
+                        text = "Ripple",
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(start = 12.dp),
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontFamily = jostFamily,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                )
+                }
             }
         },
         scrollBehavior = scrollBehavior,

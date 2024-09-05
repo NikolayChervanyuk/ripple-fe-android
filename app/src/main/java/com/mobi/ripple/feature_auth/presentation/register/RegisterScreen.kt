@@ -33,10 +33,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.mobi.ripple.R
-import com.mobi.ripple.core.presentation.DefaultSnackbar
-import com.mobi.ripple.core.presentation.Logo
-import com.mobi.ripple.core.presentation.PasswordTextInput
-import com.mobi.ripple.core.presentation.UsernameTextField
+import com.mobi.ripple.core.presentation.components.DefaultSnackbar
+import com.mobi.ripple.core.presentation.components.Logo
+import com.mobi.ripple.core.presentation.components.PasswordTextInput
+import com.mobi.ripple.core.presentation.components.UsernameTextField
 import com.mobi.ripple.core.theme.PaddingMedium
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType
@@ -142,7 +142,7 @@ fun RegisterScreen(
                 onTextChanged = { viewModel.onEvent(RegisterEvent.ConfirmPasswordChanged(it)) },
                 showPasswordsNotMatching = state.value.showPasswordsNotMatchingError.value,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Ascii,
+                    keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 )
             )

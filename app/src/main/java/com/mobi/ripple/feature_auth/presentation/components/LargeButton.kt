@@ -11,7 +11,7 @@ import com.mobi.ripple.core.theme.PaddingLarge
 import com.mobi.ripple.core.theme.Shapes
 
 @Composable
-fun LargeButton(modifier: Modifier = Modifier, text: String?, onClick: () -> Unit = {}) {
+fun LargeButton(modifier: Modifier = Modifier, text: String?, onClick: () -> Unit) {
     Button(
         modifier = modifier.fillMaxWidth(0.7f),
         shape = Shapes.small,

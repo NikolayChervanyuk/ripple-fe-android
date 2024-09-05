@@ -1,7 +1,7 @@
 package com.mobi.ripple.feature_app.feature_profile.presentation.profile.post
 
 import androidx.lifecycle.ViewModel
-import com.mobi.ripple.feature_app.feature_profile.domain.use_case.profile.ProfileUseCases
+import com.mobi.ripple.feature_app.feature_profile.domain.use_case.profile.PersonalProfileUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
-    private val profileUseCases: ProfileUseCases
+    private val personalProfileUseCases: PersonalProfileUseCases
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CreatePostState>(CreatePostState())

@@ -1,10 +1,8 @@
 package com.mobi.ripple.feature_auth.data.data_source.remote
 
 import com.mobi.ripple.core.config.AppUrls
-import com.mobi.ripple.core.data.ApiRequest
-import com.mobi.ripple.core.data.ApiResponse
-import com.mobi.ripple.feature_auth.data.data_source.remote.dto.IsEmailTakenResponse
-import com.mobi.ripple.feature_auth.data.data_source.remote.dto.IsUsernameTakenResponse
+import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiRequest
+import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiResponse
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginResponse
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RegisterRequest

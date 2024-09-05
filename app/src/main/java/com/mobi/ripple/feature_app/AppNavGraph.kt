@@ -5,18 +5,23 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.mobi.ripple.core.presentation.profile.ProfileScreen
+import com.mobi.ripple.core.presentation.profile.ProfileScreenRoute
+import com.mobi.ripple.core.presentation.profile.ProfileViewModel
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreen
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreenRoute
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreen
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profileGraph
-import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreen
-import com.mobi.ripple.feature_app.feature_search.presentation.screens.SearchScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.personalProfileGraph
+import com.mobi.ripple.feature_app.feature_search.presentation.search.SearchScreen
+import com.mobi.ripple.feature_app.feature_search.presentation.search.SearchScreenRoute
+import com.mobi.ripple.feature_app.feature_search.presentation.search.SearchViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -38,13 +43,29 @@ fun AppNavGraph(
             FeedScreen()
         }
         composable<SearchScreenRoute> {
-            //viewmodel here
-            SearchScreen()
+            val viewModel = hiltViewModel<SearchViewModel>()
+            SearchScreen(
+                viewModel,
+                mainNavController,
+                coroutineScope,
+                snackbarHostState
+            )
         }
         composable<ExploreScreenRoute> {
             //viewmodel here
             ExploreScreen()
         }
-        profileGraph(mainNavController, snackbarHostState, coroutineScope)
+        personalProfileGraph(mainNavController, snackbarHostState, coroutineScope)
+
+        composable<ProfileScreenRoute> {
+            val username = it.toRoute<ProfileScreenRoute>().username
+            val viewModel = hiltViewModel<ProfileViewModel>()
+            ProfileScreen(
+                username,
+                viewModel,
+                mainNavController,
+                snackbarHostState
+            )
+        }
     }
 }

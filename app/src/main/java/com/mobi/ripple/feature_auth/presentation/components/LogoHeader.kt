@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mobi.ripple.R
-import com.mobi.ripple.core.presentation.Logo
+import com.mobi.ripple.core.presentation.components.Logo
 import com.mobi.ripple.core.theme.jostFamily
 
 @Composable

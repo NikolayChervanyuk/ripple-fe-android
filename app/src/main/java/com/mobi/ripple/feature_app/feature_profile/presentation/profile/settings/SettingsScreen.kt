@@ -2,7 +2,6 @@ package com.mobi.ripple.feature_app.feature_profile.presentation.profile.setting
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -12,12 +11,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobi.ripple.R
-import com.mobi.ripple.core.presentation.DefaultDialog
-import com.mobi.ripple.core.presentation.DefaultDialogHeader
-import com.mobi.ripple.core.presentation.DefaultHorizontalDivider
-import com.mobi.ripple.core.presentation.OptionItem
+import com.mobi.ripple.core.presentation.components.DefaultDialog
+import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultHorizontalDivider
+import com.mobi.ripple.core.presentation.components.OptionItem
 import com.mobi.ripple.core.util.RouteType
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.ProfileScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileScreenRoute
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -28,15 +27,15 @@ fun SettingsScreen(
 ) {
     DefaultDialog(
         header = {
-            DefaultDialogHeader(
+            DefaultHeader(
                 onBackButtonClicked = {
-                    navController.popBackStack(ProfileScreenRoute, false)
+                    navController.popBackStack(PersonalProfileScreenRoute, false)
                 },
                 title = "Settings"
             )
         },
         onDismissRequest = {
-            navController.popBackStack(ProfileScreenRoute, false)
+            navController.popBackStack(PersonalProfileScreenRoute, false)
         }
     ) {
         Column(

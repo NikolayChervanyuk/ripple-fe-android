@@ -18,11 +18,13 @@ import com.mobi.ripple.core.config.BuildConfig
 import com.mobi.ripple.core.theme.OnBackgroundDarkBlue
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType
+import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_app.AppScreen
 import com.mobi.ripple.feature_app.AppScreenRoute
 import com.mobi.ripple.feature_auth.presentation.AuthGraphRoute
 import com.mobi.ripple.feature_auth.presentation.authGraph
 import dagger.hilt.android.AndroidEntryPoint
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.Serializable
 import timber.log.Timber
@@ -33,6 +35,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var rootAppManager: RootAppManager
+
+    @Inject
+    lateinit var client: HttpClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +55,14 @@ class MainActivity : ComponentActivity() {
                 GlobalAppManager = rootAppManager
                 val rootNavController = rememberNavController()
 
-                //Should check if user is in database
                 val startScreen: RouteType =
                     if (GlobalAppManager.isUserHavingAuthTokens) AppScreenRoute
                     else AuthGraphRoute
-
                 LaunchedEffect(key1 = true) {
                     GlobalAppManager.eventFlow.collectLatest { event ->
                         when (event) {
                             is RootAppManager.RootUiEvent.LogIn -> {
+                                client.invalidateBearerTokens()
                                 rootNavController.navigate(AppScreenRoute) {
                                     popUpTo(rootNavController.graph.id) {
                                         inclusive = true
@@ -67,6 +71,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             is RootAppManager.RootUiEvent.LogOut -> {
+                                client.invalidateBearerTokens()
                                 rootNavController.navigate(AuthGraphRoute) {
                                     popUpTo(rootNavController.graph.id) {
                                         inclusive = false

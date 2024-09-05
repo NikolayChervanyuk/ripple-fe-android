@@ -31,7 +31,9 @@ class SettingsViewModel @Inject constructor(
     fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.LogoutRequested -> {
-                viewModelScope.launch { GlobalAppManager.onLogout() }
+                viewModelScope.launch {
+                    GlobalAppManager.onLogout()
+                }
             }
 
             is SettingsEvent.LogoutAllDevicesRequested -> {
@@ -40,7 +42,6 @@ class SettingsViewModel @Inject constructor(
                     if (result.isError) {
                         //Show error
                     } else {
-                        client.invalidateBearerTokens()
                         GlobalAppManager.onLogout()
                     }
                 }

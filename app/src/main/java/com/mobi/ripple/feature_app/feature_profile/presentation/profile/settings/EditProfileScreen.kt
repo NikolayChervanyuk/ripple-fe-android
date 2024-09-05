@@ -1,8 +1,6 @@
 package com.mobi.ripple.feature_app.feature_profile.presentation.profile.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,17 +21,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mobi.ripple.core.presentation.DefaultDialog
-import com.mobi.ripple.core.presentation.DefaultDialogHeader
-import com.mobi.ripple.core.presentation.DefaultSnackbar
-import com.mobi.ripple.core.presentation.InvalidFieldMessage
-import com.mobi.ripple.core.presentation.RippleInputField
-import com.mobi.ripple.core.presentation.UsernameTextField
+import com.mobi.ripple.core.presentation.components.DefaultDialog
+import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultSnackbar
+import com.mobi.ripple.core.presentation.components.InvalidFieldMessage
+import com.mobi.ripple.core.presentation.components.RippleInputField
+import com.mobi.ripple.core.presentation.components.RippleMultilineInputField
+import com.mobi.ripple.core.presentation.components.UsernameTextField
+import com.mobi.ripple.core.presentation.components.WarningMessage
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.core.util.validator.FieldValidator
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.ProfileEvent
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.ProfileScreenRoute
-import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.ProfileViewModel
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileEvent
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileViewModel
 import com.mobi.ripple.feature_auth.presentation.components.LargeButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
@@ -41,7 +42,7 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun EditProfileScreen(
-    viewModel: ProfileViewModel,
+    viewModel: PersonalProfileViewModel,
     navController: NavHostController,
     sharedCoroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState
@@ -49,14 +50,16 @@ fun EditProfileScreen(
     val state = viewModel.state.collectAsStateWithLifecycle()
     val userModelState =
         remember { derivedStateOf { state.value.userProfileInfoState.value.copy() } }
+    
+    var showRequiresLogoutMessage = remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
-                is ProfileViewModel.UiEvent.UiEditScreenEvent.EditProfileSuccessful -> {
+                is PersonalProfileViewModel.UiEvent.UiEditScreenEvent.EditProfileSuccessful -> {
                     sharedCoroutineScope.launch {
                         snackbarHostState.showSnackbar("Changes saved!")
                     }
-                    navController.popBackStack(ProfileScreenRoute, false)
+                    navController.popBackStack(PersonalProfileScreenRoute, false)
                 }
 
                 else -> {}
@@ -65,7 +68,7 @@ fun EditProfileScreen(
     }
     DefaultDialog(
         header = {
-            DefaultDialogHeader(
+            DefaultHeader(
                 onBackButtonClicked = {
                     navController.popBackStack(SettingsScreenRoute, false)
                 },
@@ -90,8 +93,11 @@ fun EditProfileScreen(
             UsernameField(
                 textValue = userModelState.value.userName,
                 isUsernameTaken = state.value.editProfileState.value.isUsernameTakenState.value,
+                showRequiresLogout = showRequiresLogoutMessage.value,
                 onTextChanged = {
-                    viewModel.onEvent(ProfileEvent.EditScreenEvent.UsernameTextChanged(it))
+                    showRequiresLogoutMessage.value = 
+                        it != state.value.userProfileInfoState.value.userName
+                    viewModel.onEvent(PersonalProfileEvent.EditScreenEvent.UsernameTextChanged(it))
                     userModelState.value.userName = it
                 }
             )
@@ -100,7 +106,7 @@ fun EditProfileScreen(
                 isEmailValid = FieldValidator.isEmailValid(userModelState.value.email ?: ""),
                 isEmailTaken = state.value.editProfileState.value.isEmailTakenState.value,
                 onTextChanged = {
-                    viewModel.onEvent(ProfileEvent.EditScreenEvent.EmailTextChanged(it))
+                    viewModel.onEvent(PersonalProfileEvent.EditScreenEvent.EmailTextChanged(it))
                     userModelState.value.email = it
                 }
             )
@@ -112,7 +118,7 @@ fun EditProfileScreen(
                 text = "Save",
                 onClick = {
                     viewModel.onEvent(
-                        ProfileEvent.EditScreenEvent.EditProfileInfoRequested(userModelState.value)
+                        PersonalProfileEvent.EditScreenEvent.EditProfileInfoRequested(userModelState.value)
                     )
                 }
             )
@@ -133,23 +139,27 @@ private fun FullNameField(textValue: String, onTextChanged: (String) -> Unit) {
 private fun UsernameField(
     textValue: String,
     isUsernameTaken: Boolean,
+    showRequiresLogout: Boolean,
     onTextChanged: (String) -> Unit
 ) {
-    EditProfileField(
-        fieldTitle = "Username",
-        textValue = textValue,
-        onTextChanged = {},
-        texFieldComposable = {
-            UsernameTextField(
-                onTextChanged = onTextChanged,
-                isUsernameTaken = isUsernameTaken,
-                showUsernameTaken = isUsernameTaken,
-                text = textValue,
-                placeholder = "",
-                leadingIcon = null
-            )
-        }
-    )
+    Column {
+        WarningMessage(show = showRequiresLogout, message = "Changing username will log you out")
+        EditProfileField(
+            fieldTitle = "Username",
+            textValue = textValue,
+            onTextChanged = {},
+            textFieldComposable = {
+                UsernameTextField(
+                    onTextChanged = onTextChanged,
+                    isUsernameTaken = isUsernameTaken,
+                    showUsernameTaken = isUsernameTaken,
+                    text = textValue,
+                    placeholder = "",
+                    leadingIcon = null
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -184,16 +194,21 @@ private fun EmailField(
 @Composable
 private fun BioField(textValue: String, onTextChanged: (String) -> Unit) {
     EditProfileField(
-
         fieldTitle = "Bio",
-        maxLines = 30,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Ascii,
-            imeAction = ImeAction.Done
-        ),
         textValue = textValue,
-        onTextChanged = onTextChanged
-    )
+        onTextChanged = onTextChanged,
+        bottomPadding = 32.dp
+    ) {
+        RippleMultilineInputField(
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            minLines = 5,
+            text = textValue,
+            onTextChanged = onTextChanged
+        )
+    }
 }
 
 @Composable
@@ -202,14 +217,12 @@ private fun EditProfileField(
     bottomPadding: Dp = 14.dp,
     fieldTitle: String,
     keyboardOptions: KeyboardOptions? = null,
-    maxLines: Int = 1,
     readOnly: Boolean = false,
     textValue: String,
     onTextChanged: (String) -> Unit,
-    texFieldComposable: @Composable (() -> Unit) = {
+    textFieldComposable: @Composable (() -> Unit) = {
         RippleInputField(
             modifier = modifier.padding(bottom = 8.dp),
-            maxLines = maxLines,
             keyboardOptions = keyboardOptions ?: KeyboardOptions(
                 keyboardType = KeyboardType.Ascii,
                 imeAction = ImeAction.Next
@@ -226,17 +239,13 @@ private fun EditProfileField(
             .fillMaxWidth()
             .padding(bottom = bottomPadding)
     ) {
-        Row(
-            modifier = Modifier.padding(bottom = 2.dp)
-        ) {
-            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
             Text(
+                modifier = Modifier.padding(start = 15.dp, bottom = 2.dp),
                 text = fieldTitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-        texFieldComposable()
+        textFieldComposable()
 
     }
 }

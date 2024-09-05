@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,8 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.mobi.ripple.R
-import com.mobi.ripple.core.presentation.DefaultSnackbar
-import com.mobi.ripple.core.presentation.PasswordTextInput
+import com.mobi.ripple.core.presentation.components.DefaultSnackbar
+import com.mobi.ripple.core.presentation.components.PasswordTextInput
 import com.mobi.ripple.core.theme.PaddingMedium
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType

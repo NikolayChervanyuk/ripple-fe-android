@@ -1,6 +1,6 @@
 package com.mobi.ripple.feature_auth.data.repository
 
-import com.mobi.ripple.core.domain.Response
+import com.mobi.ripple.core.domain.model.Response
 import com.mobi.ripple.feature_auth.data.data_source.remote.AuthApiService
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.asLoginRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.asRegisterRequest

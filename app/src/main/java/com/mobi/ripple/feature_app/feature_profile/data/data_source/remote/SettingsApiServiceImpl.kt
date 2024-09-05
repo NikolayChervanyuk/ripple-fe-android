@@ -1,8 +1,8 @@
 package com.mobi.ripple.feature_app.feature_profile.data.data_source.remote
 
 import com.mobi.ripple.core.config.AppUrls
-import com.mobi.ripple.core.data.ApiRequest
-import com.mobi.ripple.core.data.ApiResponse
+import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiRequest
+import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 
