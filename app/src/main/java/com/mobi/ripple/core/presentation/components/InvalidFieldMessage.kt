@@ -1,6 +1,8 @@
 package com.mobi.ripple.core.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -16,18 +18,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun InvalidFieldMessage(modifier: Modifier = Modifier, show: Boolean, message: String) {
+fun InvalidFieldMessage(
+    modifier: Modifier = Modifier,
+    enter: EnterTransition = expandVertically(
+        expandFrom = Alignment.Top,
+        animationSpec = tween(200)
+    ),
+    exit: ExitTransition = shrinkVertically(
+        shrinkTowards = Alignment.Top,
+        animationSpec = tween(200)
+    ),
+    show: Boolean,
+    message: String
+) {
     AnimatedVisibility(
         modifier = modifier.padding(top = 2.dp),
         visible = show,
-        enter = expandVertically(
-            expandFrom = Alignment.Top,
-            animationSpec = tween(200)
-        ),
-        exit = shrinkVertically(
-            shrinkTowards = Alignment.Top,
-            animationSpec = tween(200)
-        )
+        enter = enter,
+        exit = exit
     ) {
         Row(
             modifier = Modifier.padding(bottom = 2.dp),

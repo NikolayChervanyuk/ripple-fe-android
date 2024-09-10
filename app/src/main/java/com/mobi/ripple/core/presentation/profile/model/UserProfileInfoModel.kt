@@ -8,9 +8,9 @@ data class UserProfileInfoModel(
     var userName: String,
     var email: String?,
     var bio: String?,
-    val followers: Long,
+    var followers: Long,
     val following: Long,
-    val isFollowed: Boolean,
+    var isFollowed: Boolean,
     val isActive: Boolean,
     val lastActive: Instant?,
     var postsCount: Long

@@ -24,8 +24,12 @@ sealed interface AppUrls {
         const val POST = "/p"
 
         const val UPDATE_USER = USER
-
         fun userSimplePostsUrl(username: String) = "$USER/$username/p"
+
+        fun followOrUnfollowUser(username: String) = "$USER/$username/follow"
+
+        fun getFollowers(username: String, page: Int) = "$USER/$username/followers?page=$page"
+        fun getFollowing(username: String, page: Int) = "$USER/$username/following?page=$page"
     }
 
     object SearchUrls {
@@ -33,4 +37,17 @@ sealed interface AppUrls {
         private const val FIND_SIMPLE = "find-simple"
         fun searchUsersLike(username: String) = "$USERS/$FIND_SIMPLE?like=$username"
     }
+
+    object PostUrls {
+
+        private const val USER = "user"
+        private const val POST = "p"
+        fun getSimpleUser(userId: String) = "$USER?id=$userId"
+        fun getPost(postId: String) = "$POST/$postId"
+        fun getPosts(authorId: String, page: Int) = "$POST?authorId=$authorId&page=$page"
+        fun likeOrUnlikePost(postId: String) = "$POST/$postId/like"
+        fun getPostComments(postId: String, page: Int) = "$POST/$postId/comments?page=$page"
+        fun uploadPostComment(postId: String) = "$POST/$postId/comments"
+    }
+
 }

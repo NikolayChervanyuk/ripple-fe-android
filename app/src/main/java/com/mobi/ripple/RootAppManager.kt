@@ -12,6 +12,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.mobi.ripple.core.exceptions.JwtClaimNotFoundException
 import com.mobi.ripple.feature_auth.domain.model.AuthTokens
 import io.jsonwebtoken.Jwts
+import io.ktor.util.decodeBase64Bytes
+import io.ktor.util.encodeBase64
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,7 +24,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import timber.log.Timber
 import java.util.Base64
 import javax.inject.Inject
 
@@ -53,6 +55,17 @@ class RootAppManager @Inject constructor(
                 storedUsername = username
             } else _eventFlow.emit(RootUiEvent.LogOut)
         }
+    }
+
+    suspend fun getProfilePicture(): ByteArray? {
+        return dataStoreRepository.getProfilePicture()
+    }
+
+    suspend fun storeProfilePicture(imageBytes: ByteArray) {
+        dataStoreRepository.saveProfilePicture(imageBytes)
+    }
+    suspend fun deleteProfilePicture() {
+        dataStoreRepository.deleteProfilePicture()
     }
 
     fun getStoredAuthTokens(): AuthTokens? {
@@ -92,7 +105,7 @@ class RootAppManager @Inject constructor(
             launch {
                 clearAuthTokensAndUsername()
             }
-            if (routeToLoginPage){
+            if (routeToLoginPage) {
                 _eventFlow.emit(RootUiEvent.LogOut)
             }
         }
@@ -197,19 +210,6 @@ class RootAppManager @Inject constructor(
             return null
         }
 
-//        suspend fun updateUsername(newUsername: String): Boolean {
-//            val usernameKey = stringPreferencesKey(DataStoreKeys.USERNAME.keyName)
-//            try {
-//                context.dataStore.edit { settings ->
-//                    settings[usernameKey] = newUsername
-//                }
-//                return true
-//            } catch (e: IOException) {
-//                Log.e("DataStore", "Can't write data to disk")
-//            }
-//            return false
-//        }
-
         suspend fun clearTokensAndUsername(): Boolean {
             val refreshTokenKey = stringPreferencesKey(DataStoreKeys.REFRESH_TOKEN.keyName)
             val accessTokenKey = stringPreferencesKey(DataStoreKeys.ACCESS_TOKEN.keyName)
@@ -237,10 +237,31 @@ class RootAppManager @Inject constructor(
             return false
         }
 
+        suspend fun saveProfilePicture(imageBytes: ByteArray) {
+            val profilePictureKey = stringPreferencesKey(DataStoreKeys.PROFILE_PICTURE.keyName)
+            context.dataStore.edit {
+                it[profilePictureKey] = imageBytes.encodeBase64()
+            }
+        }
+
+        suspend fun getProfilePicture(): ByteArray? {
+            val profilePictureKey = stringPreferencesKey(DataStoreKeys.PROFILE_PICTURE.keyName)
+            val preferences: Preferences = context.dataStore.data.first()
+            return preferences[profilePictureKey]?.decodeBase64Bytes()
+        }
+
+        suspend fun deleteProfilePicture() {
+            val profilePictureKey = stringPreferencesKey(DataStoreKeys.PROFILE_PICTURE.keyName)
+            context.dataStore.edit {
+                it.remove(profilePictureKey)
+            }
+        }
+
         private enum class DataStoreKeys(val keyName: String) {
             REFRESH_TOKEN("refresh_token"),
             ACCESS_TOKEN("access_token"),
-            USERNAME("username")
+            USERNAME("username"),
+            PROFILE_PICTURE("pfp")
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +40,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -56,10 +58,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.components.OptionItem
+import com.mobi.ripple.core.presentation.components.PlusIcon
 import com.mobi.ripple.core.presentation.profile.model.UserProfileInfoModel
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.theme.Shapes
-import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.core.util.FormattableNumber
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -68,11 +70,13 @@ import java.time.Instant
 @Composable
 fun ProfileHeaderSection(
     userProfileInfoModel: UserProfileInfoModel,
-    profilePicture: ByteArray?,
+    profilePicture: ImageBitmap?,
     onSettingsClicked: () -> Unit = {},
     onUploadPfpRequested: (Uri) -> Unit,
     onDeletePfpRequested: () -> Unit,
-    onCreatePostRequested: (Uri) -> Unit
+    onCreatePostRequested: (Uri) -> Unit,
+    onFollowersClicked: () -> Unit,
+    onFollowingClicked: () -> Unit
 ) {
     val pfpImagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -90,6 +94,8 @@ fun ProfileHeaderSection(
             }
         }
     )
+
+    val interactionSource = remember { MutableInteractionSource() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -174,7 +180,14 @@ fun ProfileHeaderSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.padding(start = 10.dp, bottom = 3.dp),
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onFollowersClicked()
+                        }
+                        .padding(start = 10.dp, bottom = 3.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     text = buildAnnotatedString {
@@ -194,7 +207,14 @@ fun ProfileHeaderSection(
                         .background(MaterialTheme.colorScheme.outline)
                 )
                 Text(
-                    modifier = Modifier.padding(end = 10.dp, bottom = 3.dp),
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onFollowingClicked()
+                        }
+                        .padding(end = 10.dp, bottom = 3.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     text = buildAnnotatedString {
@@ -245,13 +265,10 @@ fun ProfileHeaderSection(
                     shape = Shapes.small,
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.plus_icon),
-                        modifier = Modifier
+                    PlusIcon(
+                        Modifier
                             .padding(end = 5.dp)
-                            .size(26.dp),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = "add"
+                            .size(26.dp)
                     )
                     Text(
                         text = "Add post",
@@ -267,7 +284,7 @@ fun ProfileHeaderSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PfpImage(
-    image: ByteArray?,
+    image: ImageBitmap?,
     onUploadPfpRequested: () -> Unit,
     onDeletePfpRequested: () -> Unit
 ) {
@@ -303,7 +320,7 @@ private fun PfpImage(
     } else {
         Image(
             modifier = imageModifier,
-            bitmap = BitmapUtils.convertImageByteArrayToBitmap(image).asImageBitmap(),
+            bitmap = image,
             contentScale = ContentScale.Crop,
             contentDescription = "userImage"
         )
@@ -414,7 +431,9 @@ private fun ProfileHeaderSectionPreview() {
             profilePicture = null,
             onUploadPfpRequested = {},
             onDeletePfpRequested = {},
-            onCreatePostRequested = {}
+            onCreatePostRequested = {},
+            onFollowersClicked = {},
+            onFollowingClicked = {}
         )
     }
 }

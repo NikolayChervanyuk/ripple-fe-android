@@ -7,6 +7,7 @@ import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiRequest
 import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.put
 import io.ktor.http.path
 
 open class ProfileApiServiceImpl(
@@ -43,4 +44,10 @@ open class ProfileApiServiceImpl(
                 }
             }
         }.sendRequest()
+
+    override suspend fun changeFollowingState(
+        username: String
+    ): ApiResponse<Boolean> = ApiRequest<Boolean> {
+        client.put(AppUrls.ProfileUrls.followOrUnfollowUser(username))
+    }.sendRequest()
 }

@@ -6,8 +6,12 @@ class FieldValidator {
     companion object {
 
         const val MAX_FULLNAME_LENGTH = 60
+
         const val MAX_USERNAME_LENGTH = 40
         const val MIN_USERNAME_LENGTH = 2
+
+        const val MIN_COMMENT_LENGTH = 1
+        const val MAX_COMMENT_LENGTH = 4096
 
         fun isFullNameValid(fullName: String): Boolean {
             return fullName.length <= MAX_FULLNAME_LENGTH
@@ -26,12 +30,12 @@ class FieldValidator {
         fun isEmailValid(email: String): Boolean =
             Patterns.EMAIL_ADDRESS.matcher(email).matches();
 
-        /**
-         * Uses directly [PasswordValidator.isValid] to validate and can be used interchangeably.
-         */
         fun isPasswordValid(password: String): Boolean =
             PasswordValidator.isValid(password)
 
-
+        fun isCommentValid(comment: String): Boolean {
+            return comment.length in MIN_COMMENT_LENGTH..MAX_COMMENT_LENGTH &&
+                    comment.isNotBlank()
+        }
     }
 }

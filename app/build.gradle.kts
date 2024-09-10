@@ -88,6 +88,10 @@ dependencies {
     implementation(libs.coil.compose)
     implementation (libs.timber)
 
+    //paging
+    implementation(libs.androidx.paging.common)
+    implementation(libs.androidx.paging.compose)
+
     //viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
@@ -98,6 +102,7 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation)
 
+    //testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -114,6 +119,11 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.server.default.headers)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.paging)
+
     implementation(libs.androidx.exifinterface)
 
     implementation(libs.ktor.client.serialization)

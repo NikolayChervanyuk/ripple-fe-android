@@ -1,6 +1,5 @@
 package com.mobi.ripple.core.presentation.components
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -13,14 +12,12 @@ import com.mobi.ripple.R
 
 @Composable
 fun CrossIcon() {
-    Row {
-        Icon(
-            modifier = Modifier
-                .size(16.dp)
-                .padding(2.dp),
-            painter = painterResource(id = R.drawable.cross_icon),
-            tint = MaterialTheme.colorScheme.error,
-            contentDescription = "requirement not met"
-        )
-    }
+    Icon(
+        modifier = Modifier
+            .size(16.dp)
+            .padding(2.dp),
+        painter = painterResource(id = R.drawable.cross_icon),
+        tint = MaterialTheme.colorScheme.error,
+        contentDescription = "requirement not met"
+    )
 }

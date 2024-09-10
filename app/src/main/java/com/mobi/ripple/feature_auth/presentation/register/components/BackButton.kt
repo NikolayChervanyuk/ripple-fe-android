@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.mobi.ripple.core.presentation.components.BackArrow
+import com.mobi.ripple.core.presentation.components.BackArrowIcon
 
 @Composable
 fun BackButton(paddingValues: PaddingValues = PaddingValues(0.dp), onClick: () -> Unit) {
@@ -26,7 +26,7 @@ fun BackButton(paddingValues: PaddingValues = PaddingValues(0.dp), onClick: () -
                 paddingValues.calculateBottomPadding()
 
 
-    BackArrow(modifier = Modifier
+    BackArrowIcon(modifier = Modifier
         .width(24.dp + horizontalPadding)
         .height(24.dp + verticalPadding)
         .padding(paddingValues)

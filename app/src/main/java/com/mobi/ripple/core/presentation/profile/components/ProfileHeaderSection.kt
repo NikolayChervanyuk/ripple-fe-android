@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,17 +39,21 @@ import com.mobi.ripple.core.util.FormattableNumber
 
 @Composable
 fun ProfileHeaderSection(
-    userProfileInfoModel: UserProfileInfoModel,
+    userProfileInfo: UserProfileInfoModel,
     profilePicture: ByteArray?,
-    onPfpClicked: () -> Unit
+    onPfpClicked: () -> Unit,
+    onFollowStateChangeRequested: () -> Unit,
+    onFollowersClicked: () -> Unit,
+    onFollowingClicked: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -59,11 +66,11 @@ fun ProfileHeaderSection(
             ) {
                 PfpImage(
                     image = profilePicture,
-                    onClicked =  onPfpClicked
+                    onClicked = onPfpClicked
                 )
                 Text(
                     modifier = Modifier.padding(vertical = 8.dp),
-                    text = userProfileInfoModel.fullName ?: "",
+                    text = userProfileInfo.fullName ?: "",
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineMedium
                 )
@@ -72,11 +79,12 @@ fun ProfileHeaderSection(
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.outlineVariant)
                         .padding(horizontal = 25.dp, vertical = 3.dp),
-                    text = "@" + userProfileInfoModel.userName,
+                    text = "@" + userProfileInfo.userName,
                     color = MaterialTheme.colorScheme.surface,
                     style = MaterialTheme.typography.titleSmall
                 )
             }
+
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,16 +92,21 @@ fun ProfileHeaderSection(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-
-            userProfileInfoModel.bio?.let {
+            userProfileInfo.bio?.let {
                 Text(
                     modifier = Modifier.padding(start = 12.dp, top = 12.dp, end = 12.dp),
-                    text = userProfileInfoModel.bio!!,
+                    text = userProfileInfo.bio!!,
                     textAlign = TextAlign.Justify,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black,
                 )
             }
+            ProfileActionsRow(
+                isFollowed = userProfileInfo.isFollowed,
+                onFollowStatusChangeRequest = onFollowStateChangeRequested,
+                onMessageRequest = { TODO("open chat room with user") }
+
+            )
             val outlineColor = MaterialTheme.colorScheme.outline
             Row(
                 modifier = Modifier
@@ -111,14 +124,21 @@ fun ProfileHeaderSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.padding(start = 10.dp, bottom = 3.dp),
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            onFollowersClicked()
+                        }
+                        .padding(start = 10.dp, bottom = 3.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     text = buildAnnotatedString {
                         withStyle(
                             style = MaterialTheme.typography.titleSmall.toSpanStyle()
                         ) {
-                            append(FormattableNumber(userProfileInfoModel.followers).format())
+                            append(FormattableNumber(userProfileInfo.followers).format())
                         }
                         append(" ")
                         append("Followers")
@@ -131,7 +151,12 @@ fun ProfileHeaderSection(
                         .background(MaterialTheme.colorScheme.outline)
                 )
                 Text(
-                    modifier = Modifier.padding(end = 10.dp, bottom = 3.dp),
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) { onFollowingClicked() }
+                        .padding(end = 10.dp, bottom = 3.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                     text = buildAnnotatedString {
@@ -140,7 +165,7 @@ fun ProfileHeaderSection(
                         ) {
                             append(
                                 FormattableNumber.format(
-                                    userProfileInfoModel.following,
+                                    userProfileInfo.following,
                                     shouldTrimOnZero = true
                                 ).format()
                             )
@@ -159,7 +184,7 @@ fun ProfileHeaderSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = userProfileInfoModel.postsCount.toString() + " " + "Posts",
+                    text = userProfileInfo.postsCount.toString() + " " + "Posts",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )

@@ -9,11 +9,14 @@ import androidx.compose.ui.res.painterResource
 import com.mobi.ripple.R
 
 @Composable
-fun SearchIcon(modifier: Modifier = Modifier, tint: Color? = null) {
+fun SearchIcon(
+    modifier: Modifier = Modifier,
+    tint: Color = MaterialTheme.colorScheme.onSurface
+) {
     Icon(
         modifier = modifier,
         painter = painterResource(id = R.drawable.search_icon),
-        tint = tint ?: MaterialTheme.colorScheme.onSurface,
+        tint = tint,
         contentDescription = "Search item selected"
     )
 }

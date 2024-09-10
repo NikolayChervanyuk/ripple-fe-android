@@ -1,6 +1,7 @@
 package com.mobi.ripple.core.presentation.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,34 +10,50 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
+import kotlinx.coroutines.flow.Flow
+
+typealias Index = Int
 
 @Composable
 fun ProfilePostsSection(
-    posts: SnapshotStateList<UserProfileSimplePostModel>
+    onPostClicked: (index: Index, simplePostModel: UserProfileSimplePostModel) -> Unit,
+    postsFlow: Flow<PagingData<UserProfileSimplePostModel>>
 ) {
-    val mutableStateList = remember { posts }
+    val postsLazyPagingItems = postsFlow.collectAsLazyPagingItems()
+    if (postsLazyPagingItems.itemCount > 0) {
 
-    if (mutableStateList.isNotEmpty()) {
-        LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxWidth(),
-            columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-
+        if (postsLazyPagingItems.loadState.refresh is LoadState.Loading) {
+            CircularProgressIndicatorRow()
+        } else {
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-            mutableStateList.onEach { post ->
-                item {
+                items(
+                    count = postsLazyPagingItems.itemCount,
+                    key = postsLazyPagingItems.itemKey { it.id },
+                ) { index ->
+                    val item = postsLazyPagingItems[index]
                     SimplePostItem(
-                        imageData = post.image,
-                        onClicked = {/*TODO: open the post*/ }
+                        imageBitmap = item?.image,
+                        onClicked = { item?.let { onPostClicked(index, it) } }
                     )
                 }
+            }
+            if (postsLazyPagingItems.loadState.append is LoadState.Loading) {
+                CircularProgressIndicatorRow()
             }
         }
     } else {
@@ -52,7 +69,18 @@ fun ProfilePostsSection(
             )
         }
     }
+}
 
+@Composable
+private fun CircularProgressIndicatorRow() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 40.dp, top = 15.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        DefaultCircularProgressIndicator()
+    }
 }
 
 //@Preview(showBackground = true)

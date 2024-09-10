@@ -13,9 +13,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.mobi.ripple.core.presentation.followers_following.FollowersFollowingScreenRoute
+import com.mobi.ripple.core.presentation.followers_following.GetType
+import com.mobi.ripple.core.presentation.profile.components.ProfilePostsSection
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.components.ProfileHeaderSection
-import com.mobi.ripple.core.presentation.profile.components.ProfilePostsSection
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.post.CreatePostScreenRoute
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.settings.SettingsScreenRoute
 import kotlinx.coroutines.flow.collectLatest
@@ -27,8 +29,6 @@ fun PersonalProfileScreen(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState
 ) {
-//    var profileHeaderHeight by remember { mutableIntStateOf(240) }
-//    var postSectionOffset by remember { mutableIntStateOf(0) }
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(
@@ -57,6 +57,24 @@ fun PersonalProfileScreen(
                     navController.navigate(CreatePostScreenRoute)
                 }
 
+                is PersonalProfileViewModel.UiEvent.FollowersClicked -> {
+                    navController.navigate(
+                        FollowersFollowingScreenRoute(
+                            state.value.userProfileInfoState.value.userName,
+                            GetType.FOLLOWERS
+                        )
+                    )
+                }
+
+                is PersonalProfileViewModel.UiEvent.FollowingClicked -> {
+                    navController.navigate(
+                        FollowersFollowingScreenRoute(
+                            state.value.userProfileInfoState.value.userName,
+                            GetType.FOLLOWING
+                        )
+                    )
+                }
+
                 else -> {}
             }
         }
@@ -64,8 +82,7 @@ fun PersonalProfileScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-        ,
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // FIXME: Header should collapse when scrolling up
@@ -79,10 +96,13 @@ fun PersonalProfileScreen(
             onDeletePfpRequested = { viewModel.onEvent(PersonalProfileEvent.DeletePfpRequested) },
             onCreatePostRequested = { imageUri ->
                 viewModel.onEvent(PersonalProfileEvent.CreatePostRequested(imageUri))
-            }
+            },
+            onFollowersClicked = { viewModel.onEvent(PersonalProfileEvent.FollowersClicked) },
+            onFollowingClicked = { viewModel.onEvent(PersonalProfileEvent.FollowingClicked) }
         )
         ProfilePostsSection(
-            state.value.userProfileSimplePosts
+            postsFlow = state.value.userProfileSimplePostsFlow,
+            onPostClicked = {index, postModel -> TODO()}
         )
     }
 }

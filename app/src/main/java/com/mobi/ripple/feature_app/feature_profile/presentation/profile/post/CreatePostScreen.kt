@@ -16,12 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.components.DefaultDialog
 import com.mobi.ripple.core.presentation.components.DefaultHeader
 import com.mobi.ripple.core.presentation.components.RippleMultilineInputField
@@ -44,6 +49,9 @@ fun CreatePostScreen(
 ) {
 
     val state = viewModel.state.collectAsStateWithLifecycle()
+    val simplePostsLazyPagingItems = state.value
+        .userProfileSimplePostsFlow.collectAsLazyPagingItems()
+
     LaunchedEffect(true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
@@ -54,8 +62,8 @@ fun CreatePostScreen(
                 }
 
                 is PersonalProfileViewModel.UiEvent.UiNewPostEvent.NewPostPostedSuccessfully -> {
-                    //TODO: add new post to post list
                     sharedCoroutineScope.launch {
+                        simplePostsLazyPagingItems.refresh()
                         snackbarHostState.showSnackbar("Post uploaded successfully")
                         navController.popBackStack(PersonalProfileScreenRoute, false)
                     }
@@ -72,11 +80,27 @@ fun CreatePostScreen(
         },
         header = {
             DefaultHeader(
-                onBackButtonClicked = { navController.popBackStack(PersonalProfileScreenRoute, false) },
+                onBackButtonClicked = {
+                    navController.popBackStack(
+                        PersonalProfileScreenRoute,
+                        false
+                    )
+                },
                 title = "New post"
             )
         }
     ) {
+        if (state.value.newPostState.value.isUploading.value) {
+            Box(
+                modifier = Modifier
+                    .background(color = Color(0f, 0f, 0f, .5f, ColorSpaces.Srgb))
+                    .fillMaxSize()
+                    .zIndex(Float.MAX_VALUE),
+                contentAlignment = Alignment.Center
+            ) {
+                DefaultCircularProgressIndicator()
+            }
+        }
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -99,13 +123,22 @@ fun CreatePostScreen(
                         .newPostModelState.value
                         .captionText,
                     onTextChanged = {
-                        viewModel.onEvent(PersonalProfileEvent.NewPostScreenEvent.CaptionTextChanged(it))
+                        viewModel.onEvent(
+                            PersonalProfileEvent.NewPostScreenEvent.CaptionTextChanged(
+                                it
+                            )
+                        )
                     }
                 )
                 LargeButton(
                     modifier = Modifier.padding(top = 24.dp),
                     text = "Post",
-                    onClick = { viewModel.onEvent(PersonalProfileEvent.NewPostScreenEvent.UploadPostRequested) }
+                    onClick = {
+                        viewModel.onEvent(
+                            PersonalProfileEvent.NewPostScreenEvent
+                                .UploadPostRequested
+                        )
+                    }
                 )
             }
         }
@@ -125,7 +158,7 @@ private fun PostImage(imageBytes: ByteArray) {
             .background(MaterialTheme.colorScheme.onSurfaceVariant),
         contentAlignment = Alignment.Center,
     ) {
-        if(imageBytes.isNotEmpty()) {
+        if (imageBytes.isNotEmpty()) {
             Image(
                 bitmap =
                 BitmapUtils.convertImageByteArrayToBitmap(imageBytes)

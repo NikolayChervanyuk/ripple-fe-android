@@ -4,9 +4,14 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.paging.PagingData
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.model.NewPostModel
 import com.mobi.ripple.core.presentation.profile.model.UserProfileInfoModel
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
+import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 data class PersonalProfileState(
     var userProfileInfoState: MutableState<UserProfileInfoModel> = mutableStateOf(
@@ -23,9 +28,9 @@ data class PersonalProfileState(
             postsCount = 0L
         )
     ),
-    var userProfilePicture: MutableState<ByteArray?> = mutableStateOf(null),
+    var userProfilePicture: MutableState<ImageBitmap?> = mutableStateOf(null),
+    var userProfileSimplePostsFlow: Flow<PagingData<UserProfileSimplePostModel>> = emptyFlow(),
     var userProfileSimplePosts: SnapshotStateList<UserProfileSimplePostModel> = mutableStateListOf(),
-    var page: Long = 0L
 ) {
     var editProfileState = mutableStateOf(EditProfileState())
     data class EditProfileState(
@@ -34,6 +39,7 @@ data class PersonalProfileState(
     )
     var newPostState = mutableStateOf(NewPostState())
     data class NewPostState(
+        var isUploading: MutableState<Boolean> = mutableStateOf(false),
         val newPostModelState: MutableState<NewPostModel> = mutableStateOf(
             NewPostModel(ByteArray(0), "")
         )

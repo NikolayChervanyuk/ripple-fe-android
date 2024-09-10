@@ -7,6 +7,8 @@ sealed class PersonalProfileEvent {
     data class UploadPfpRequested(val imageUri: Uri) : PersonalProfileEvent()
     data object DeletePfpRequested: PersonalProfileEvent()
     data object SettingsClicked: PersonalProfileEvent()
+    data object FollowersClicked: PersonalProfileEvent()
+    data object FollowingClicked: PersonalProfileEvent()
     data class CreatePostRequested(val imageUri: Uri): PersonalProfileEvent()
     sealed class EditScreenEvent {
         data class UsernameTextChanged(val newText: String) : PersonalProfileEvent()

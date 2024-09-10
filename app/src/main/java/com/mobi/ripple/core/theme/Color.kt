@@ -18,6 +18,7 @@ val OnSecondaryBlue = Color(0xFFFBFDFF)
 val SuccessGreen = Color(0xFF4CAF50)
 val BrightGreen = Color(0xFF07D600)
 val WarningYellow = Color(0xFFE4AD08)
+val LikeRed = Color(0xFFED1B24)
 
 
 

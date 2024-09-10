@@ -1,8 +1,9 @@
 package com.mobi.ripple.feature_app.feature_profile.di
 
+import com.mobi.ripple.core.data.data_source.local.AppDatabase
 import com.mobi.ripple.core.domain.use_case.profile.GetProfileInfoUseCase
 import com.mobi.ripple.core.domain.use_case.profile.GetProfilePictureUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetSimplePostsUseCase
+import com.mobi.ripple.core.domain.use_case.profile.GetSimplePostsFlowUseCase
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiServiceImpl
 import com.mobi.ripple.feature_app.feature_profile.data.repository.PersonalProfileRepositoryImpl
@@ -36,9 +37,10 @@ object PersonalProfileModule {
     @Provides
     @Singleton
     fun providePersonalProfileRepository(
-        personalProfileApiService: PersonalProfileApiService
+        personalProfileApiService: PersonalProfileApiService,
+        database: AppDatabase
     ): PersonalProfileRepository {
-        return PersonalProfileRepositoryImpl(personalProfileApiService)
+        return PersonalProfileRepositoryImpl(personalProfileApiService, database)
     }
 
     @Provides
@@ -48,7 +50,7 @@ object PersonalProfileModule {
             getProfilePictureUseCase = GetProfilePictureUseCase(repository),
             uploadPfpUseCase = UploadPfpUseCase(repository),
             deletePfpUseCase = DeletePfpUseCase(repository),
-            getSimplePostsUseCase = GetSimplePostsUseCase(repository),
+            getSimplePostsFlowUseCase = GetSimplePostsFlowUseCase(repository),
             getProfileInfoUseCase = GetProfileInfoUseCase(repository),
             isOtherUserWithUsernameExists = IsOtherUserWithUsernameExistsUseCase(repository),
             isOtherUserWithEmailExists = IsOtherUserWithEmailExistsUseCase(repository),

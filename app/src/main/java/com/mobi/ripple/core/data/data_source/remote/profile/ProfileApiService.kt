@@ -11,4 +11,5 @@ interface ProfileApiService {
         username: String,
         page: Long,
     ): ApiResponse<List<UserSimplePostsResponse>>
+    suspend fun changeFollowingState(username: String): ApiResponse<Boolean>
 }

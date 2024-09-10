@@ -1,7 +1,6 @@
 package com.mobi.ripple.core.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,48 +13,56 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.feature_auth.presentation.register.components.BackButton
 
 @Composable
 fun DefaultHeader(
+    modifier: Modifier = Modifier,
     actionComposable: @Composable (() -> Unit)? = null,
-    onBackButtonClicked: () -> Unit, title: String
+    onBackButtonClicked: (() -> Unit)? = null,
+    height: Dp? = 45.dp,
+    title: String,
+    textStyle: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    val rowModifier =
+        height?.let { modifier.height(it) } ?: modifier
+    Row(
+        modifier = rowModifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        onBackButtonClicked?.let {
             BackButton(
                 paddingValues = PaddingValues(start = 5.dp),
-                onClick = { onBackButtonClicked() }
+                onClick = { it.invoke() }
             )
-            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            actionComposable?.invoke()
-            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
         }
+        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+        Text(
+            text = title,
+            style = textStyle,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        actionComposable?.invoke()
+        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
     }
 }
 
 @Preview
 @Composable
 private fun DefaultDialogHeaderPrev() {
-    MaterialTheme{
+    MaterialTheme {
         Surface {
-            DefaultHeader(onBackButtonClicked = { }, title = "Settings")
+            DefaultHeader(
+                onBackButtonClicked = { },
+                title = "Settings"
+            )
         }
     }
 }

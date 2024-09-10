@@ -1,5 +1,7 @@
 package com.mobi.ripple.feature_app.feature_profile.data.repository
 
+import com.mobi.ripple.core.data.data_source.local.AppDatabase
+import com.mobi.ripple.core.data.repository.ProfileRepositoryImpl
 import com.mobi.ripple.core.domain.model.Response
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto.asUpdateUserProfileInfoRequest
@@ -9,8 +11,9 @@ import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileNewPo
 import com.mobi.ripple.feature_app.feature_profile.domain.repository.PersonalProfileRepository
 
 class PersonalProfileRepositoryImpl(
-    private val personalProfileApiService: PersonalProfileApiService
-) : PersonalProfileRepository, ProfileRepositoryImpl(personalProfileApiService) {
+    private val personalProfileApiService: PersonalProfileApiService,
+    private val database: AppDatabase
+) : PersonalProfileRepository, ProfileRepositoryImpl(personalProfileApiService, database) {
 
 
     override suspend fun uploadUserProfilePicture(

@@ -11,10 +11,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import com.mobi.ripple.core.presentation.components.RippleInputField
 import com.mobi.ripple.core.presentation.components.SearchIcon
 import com.mobi.ripple.core.presentation.components.SimpleUserItem
@@ -34,8 +39,9 @@ fun SearchScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
-
+    val focusRequester = remember { FocusRequester() }
     LaunchedEffect(key1 = true) {
+        focusRequester.requestFocus()
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is SearchViewModel.UiEvent.SearchError -> {
@@ -60,7 +66,8 @@ fun SearchScreen(
     ) {
         RippleInputField(
             modifier = Modifier
-                .padding(15.dp),
+                .padding(15.dp)
+                .focusRequester(focusRequester),
             leadingIcon = {
                 SearchIcon(
                     modifier = Modifier

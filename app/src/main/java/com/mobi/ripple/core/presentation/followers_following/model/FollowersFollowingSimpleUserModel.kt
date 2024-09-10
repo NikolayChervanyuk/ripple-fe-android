@@ -1,12 +1,12 @@
-package com.mobi.ripple.feature_app.feature_search.presentation.model
+package com.mobi.ripple.core.presentation.followers_following.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.mobi.ripple.core.domain.model.followers_following.FollowersFollowingSimpleUser
 import com.mobi.ripple.core.presentation.components.SimpleUserItemModel
 import com.mobi.ripple.core.util.BitmapUtils
-import com.mobi.ripple.feature_app.feature_search.domain.model.SimpleUser
 
-data class SimpleUserModel(
+data class FollowersFollowingSimpleUserModel(
     val id: String,
     val fullName: String?,
     val username: String,
@@ -23,14 +23,13 @@ data class SimpleUserModel(
     )
 }
 
-fun SimpleUser.asSimpleUserModel() = SimpleUserModel(
-    id = id,
-    fullName = fullName,
-    username = username,
-    isActive = isActive,
-    pfp = profilePicture?.let {
-        BitmapUtils
-            .convertImageByteArrayToBitmap(it)
-            .asImageBitmap()
-    }
-)
+fun FollowersFollowingSimpleUser.asFollowersFollowingSimpleUserModel() =
+    FollowersFollowingSimpleUserModel(
+        id = id,
+        fullName = fullName,
+        username = username,
+        isActive = isActive,
+        pfp = profilePicture?.let {
+            BitmapUtils.convertImageByteArrayToBitmap(it).asImageBitmap()
+        }
+    )

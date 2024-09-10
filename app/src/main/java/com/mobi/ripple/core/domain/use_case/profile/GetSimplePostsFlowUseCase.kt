@@ -1,16 +1,16 @@
 package com.mobi.ripple.core.domain.use_case.profile
 
-import com.mobi.ripple.core.domain.model.Response
+import androidx.paging.PagingData
 import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import com.mobi.ripple.core.domain.repository.ProfileRepository
+import kotlinx.coroutines.flow.Flow
 
-class GetSimplePostsUseCase(
+class GetSimplePostsFlowUseCase(
     private val repository: ProfileRepository
 ) {
     suspend operator fun invoke(
-        username: String,
-        page: Long
-    ): Response<List<UserProfileSimplePost>> {
-        return repository.getSimpleUserPosts(username, page)
+        username: String
+    ): Flow<PagingData<UserProfileSimplePost>> {
+        return repository.getSimpleUserPostsFlow(username)
     }
 }

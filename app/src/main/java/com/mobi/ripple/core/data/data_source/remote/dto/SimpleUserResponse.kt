@@ -1,7 +1,7 @@
-package com.mobi.ripple.feature_app.feature_search.data.data_source.remote.dto
+package com.mobi.ripple.core.data.data_source.remote.dto
 
 import android.util.Base64
-import com.mobi.ripple.feature_app.feature_search.domain.model.SimpleUser
+import com.mobi.ripple.feature_app.feature_search.domain.model.SearchSimpleUser
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +12,7 @@ data class SimpleUserResponse(
     val active: Boolean,
     val smallProfilePicture: String?
 ) {
-    fun asSimpleUser() = SimpleUser(
+    fun asSimpleUser() = SearchSimpleUser(
         id = id,
         fullName = fullName,
         username = username,

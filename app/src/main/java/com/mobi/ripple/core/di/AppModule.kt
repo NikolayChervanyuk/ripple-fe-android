@@ -4,7 +4,7 @@ import android.content.Context
 import arrow.core.Either
 import com.mobi.ripple.RootAppManager
 import com.mobi.ripple.core.config.AppUrls
-import com.mobi.ripple.core.util.invalidateBearerTokens
+import com.mobi.ripple.core.data.data_source.local.AppDatabase
 import com.mobi.ripple.core.util.toNetworkError
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RefreshTokenRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RefreshTokenResponse
@@ -29,12 +29,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.ContentType
-import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
-import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.util.url
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
@@ -42,16 +38,16 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-//    @Provides
-//    @Singleton
-//    fun provideDataStoreRepository(@ApplicationContext context: Context): DataStoreRepository {
-//        return DataStoreRepository(context)
-//    }
-
     @Provides
     @Singleton
     fun provideRootAppManager(@ApplicationContext context: Context): RootAppManager {
         return RootAppManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+      return AppDatabase.getInstance(context)
     }
 
     @Provides

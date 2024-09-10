@@ -3,25 +3,27 @@ package com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.map
 import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.core.config.ConstraintValues
+import com.mobi.ripple.core.presentation.profile.model.asUserProfileInfoModel
+import com.mobi.ripple.core.presentation.profile.model.asUserProfileSimplePostModel
 import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.core.util.validator.FieldValidator
 import com.mobi.ripple.feature_app.feature_profile.domain.use_case.profile.PersonalProfileUseCases
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.model.NewPostModel
-import com.mobi.ripple.core.presentation.profile.model.asUserProfileInfoModel
-import com.mobi.ripple.core.presentation.profile.model.asUserProfileSimplePostModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -30,7 +32,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PersonalProfileViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val client: HttpClient,
     private val personalProfileUseCases: PersonalProfileUseCases
 ) : ViewModel() {
 
@@ -44,7 +45,8 @@ class PersonalProfileViewModel @Inject constructor(
         viewModelScope.launch {
             GlobalAppManager.storedUsername?.let { username ->
                 launch {
-                    val profileInfoResponse = personalProfileUseCases.getProfileInfoUseCase(username)
+                    val profileInfoResponse =
+                        personalProfileUseCases.getProfileInfoUseCase(username)
                     if (profileInfoResponse.isError) {
                         _eventFlow.emit(UiEvent.ShowSnackbar(profileInfoResponse.errorMessage))
                     } else {
@@ -53,38 +55,59 @@ class PersonalProfileViewModel @Inject constructor(
                     }
                 }
                 launch {
-                    val profilePictureResponse =
-                        personalProfileUseCases.getProfilePictureUseCase(username)
-                    if (profilePictureResponse.isError) {
-                        if (profilePictureResponse.httpStatusCode != HttpStatusCode.NotFound) {
-                            _eventFlow.emit(UiEvent.ShowSnackbar(profilePictureResponse.errorMessage))
+                    val localPfpData = GlobalAppManager.getProfilePicture()
+                    if (localPfpData == null) {
+                        val profilePictureResponse =
+                            personalProfileUseCases.getProfilePictureUseCase(username)
+                        if (profilePictureResponse.isError) {
+                            if (profilePictureResponse.httpStatusCode != HttpStatusCode.NotFound) {
+                                _eventFlow.emit(UiEvent.ShowSnackbar(profilePictureResponse.errorMessage))
+                            }
+                        } else {
+                            GlobalAppManager.storeProfilePicture(profilePictureResponse.content!!.image)
+                            _state.value.userProfilePicture.value =
+                                BitmapUtils.convertImageByteArrayToBitmap(
+                                    profilePictureResponse.content.image
+                                ).asImageBitmap()
                         }
                     } else {
                         _state.value.userProfilePicture.value =
-                            profilePictureResponse.content!!.image
+                            BitmapUtils
+                                .convertImageByteArrayToBitmap(localPfpData)
+                                .asImageBitmap()
                     }
                 }
-                if (state.value.page == 0L) {
-                    launch {
-                        val simplePostsResponse =
-                            personalProfileUseCases.getSimplePostsUseCase(username, state.value.page++)
-                        if (simplePostsResponse.isError) {
-                            if (simplePostsResponse.httpStatusCode != HttpStatusCode.NotFound) {
-                                _eventFlow.emit(UiEvent.ShowSnackbar(simplePostsResponse.errorMessage))
+                launch {
+                    _state.value.userProfileSimplePostsFlow =
+                        personalProfileUseCases
+                            .getSimplePostsFlowUseCase(username)
+                            .map { pagingData ->
+                                pagingData.map { it.asUserProfileSimplePostModel() }
                             }
-                        } else {
-                            _state.value.userProfileSimplePosts
-                                .addAll(simplePostsResponse.content!!
-                                    .map { it.asUserProfileSimplePostModel() }
-                                )
-                        }
-                    }
                 }
+//                if (state.value.page == 0L) {
+//                    launch {
+//                        val simplePostsResponse =
+//                            personalProfileUseCases.getSimplePostsFlowUseCase(
+//                                username,
+//                                state.value.page++
+//                            )
+//                        if (simplePostsResponse.isError) {
+//                            if (simplePostsResponse.httpStatusCode != HttpStatusCode.NotFound) {
+//                                _eventFlow.emit(UiEvent.ShowSnackbar(simplePostsResponse.errorMessage))
+//                            }
+//                        } else {
+//                            _state.value.userProfileSimplePosts
+//                                .addAll(simplePostsResponse.content!!
+//                                    .map { it.asUserProfileSimplePostModel() }
+//                                )
+//                        }
+//                    }
+//                }
             } ?: GlobalAppManager.onLogout()
         }
     }
 
-    //Events triggered from Screen
     fun onEvent(event: PersonalProfileEvent) {
         when (event) {
             is PersonalProfileEvent.UploadPfpRequested -> {
@@ -97,7 +120,11 @@ class PersonalProfileViewModel @Inject constructor(
                             _eventFlow.emit(UiEvent.ShowSnackbar(result.errorMessage))
                         } else {
                             if (result.content!!) {
-                                _state.value.userProfilePicture.value = compressedImageBytes
+                                _state.value.userProfilePicture.value =
+                                    BitmapUtils
+                                        .convertImageByteArrayToBitmap(compressedImageBytes)
+                                        .asImageBitmap()
+                                GlobalAppManager.storeProfilePicture(compressedImageBytes)
                             } else {
                                 _eventFlow.emit(
                                     UiEvent.ShowSnackbar("Failed to upload image, try again later")
@@ -116,6 +143,7 @@ class PersonalProfileViewModel @Inject constructor(
                     } else {
                         if (result.content!!) {
                             _state.value.userProfilePicture.value = null
+                            GlobalAppManager.deleteProfilePicture()
                         } else {
                             _eventFlow.emit(
                                 UiEvent.ShowSnackbar("Failed to delete image, try again later")
@@ -138,6 +166,18 @@ class PersonalProfileViewModel @Inject constructor(
                 }
             }
 
+            is PersonalProfileEvent.FollowersClicked -> {
+                viewModelScope.launch {
+                    _eventFlow.emit(UiEvent.FollowersClicked)
+                }
+            }
+
+            is PersonalProfileEvent.FollowingClicked -> {
+                viewModelScope.launch {
+                    _eventFlow.emit(UiEvent.FollowingClicked)
+                }
+            }
+
             is PersonalProfileEvent.SettingsClicked -> {
                 viewModelScope.launch {
                     _eventFlow.emit(UiEvent.SettingsClicked)
@@ -147,7 +187,8 @@ class PersonalProfileViewModel @Inject constructor(
             is PersonalProfileEvent.EditScreenEvent.UsernameTextChanged -> {
                 if (event.newText.isEmpty()) return
                 viewModelScope.launch {
-                    val result = personalProfileUseCases.isOtherUserWithUsernameExists(event.newText)
+                    val result =
+                        personalProfileUseCases.isOtherUserWithUsernameExists(event.newText)
                     if (result.isError) return@launch
                     if (result.content!!) {
                         _state.value.editProfileState.value
@@ -194,7 +235,7 @@ class PersonalProfileViewModel @Inject constructor(
                         } else {
                             if (result.content!!) {
                                 GlobalAppManager.storedUsername?.let { storedUsername ->
-                                    if(event.userModel.userName != storedUsername) {
+                                    if (event.userModel.userName != storedUsername) {
                                         GlobalAppManager.onLogout()
                                     }
                                 } ?: GlobalAppManager.onLogout()
@@ -216,6 +257,7 @@ class PersonalProfileViewModel @Inject constructor(
 
             is PersonalProfileEvent.NewPostScreenEvent.UploadPostRequested -> {
                 viewModelScope.launch {
+                    _state.value.newPostState.value.isUploading.value = true
                     val result = personalProfileUseCases.uploadPostUseCase(
                         state.value
                             .newPostState.value
@@ -228,21 +270,12 @@ class PersonalProfileViewModel @Inject constructor(
                         if (result.content!!) {
                             launch {
                                 GlobalAppManager.storedUsername?.let { username ->
-                                    _state.value.page = 0
-                                    val simplePostsResponse =
+                                    _state.value.userProfileSimplePostsFlow =
                                         personalProfileUseCases
-                                            .getSimplePostsUseCase(username, state.value.page++)
-                                    if (simplePostsResponse.isError) {
-                                        _eventFlow.emit(
-                                            UiEvent.ShowSnackbar(simplePostsResponse.errorMessage)
-                                        )
-                                    } else {
-                                        _state.value.userProfileSimplePosts.clear()
-                                        _state.value.userProfileSimplePosts
-                                                .addAll(simplePostsResponse.content!!
-                                                .map { it.asUserProfileSimplePostModel() }
-                                            )
-                                    }
+                                            .getSimplePostsFlowUseCase(username)
+                                            .map { pagingData ->
+                                                pagingData.map { it.asUserProfileSimplePostModel() }
+                                            }
                                 }
                             }
                             _state.value
@@ -259,6 +292,7 @@ class PersonalProfileViewModel @Inject constructor(
                             )
                         }
                     }
+                    _state.value.newPostState.value.isUploading.value = false
                 }
             }
         }
@@ -268,6 +302,8 @@ class PersonalProfileViewModel @Inject constructor(
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()
         data object SettingsClicked : UiEvent()
+        data object FollowersClicked : UiEvent()
+        data object FollowingClicked : UiEvent()
         data object CreatePostRequest : UiEvent()
         sealed class UiEditScreenEvent {
             data object EditProfileSuccessful : UiEvent()
@@ -284,15 +320,7 @@ class PersonalProfileViewModel @Inject constructor(
         quality: Float = 0.75f
         //maxBytes: Int = ConstraintValues.MAX_IMAGE_SIZE_BYTES
     ): ByteArray {
-        val finalQuality =  if(quality < 0.2 || quality > 0.95) 0.75f else quality
-//        var maxByteSize: Int = maxBytes
-//        if(maxBytes > ConstraintValues.MAX_IMAGE_SIZE_BYTES){
-//            maxByteSize = ConstraintValues.MAX_IMAGE_SIZE_BYTES
-//        }
-//        if (imageBytes.size <= maxByteSize) return imageBytes
-//        val delta = 0.01f
-//        val qualityCoefficient = maxByteSize / imageBytes.size.toFloat()
-//        val qualityPercentage = ((qualityCoefficient - delta) * 100).toInt()
+        val finalQuality = if (quality < 0.2 || quality > 0.95) 0.75f else quality
 
         var bitmap = BitmapUtils.convertImageByteArrayToBitmap(imageBytes)
 
