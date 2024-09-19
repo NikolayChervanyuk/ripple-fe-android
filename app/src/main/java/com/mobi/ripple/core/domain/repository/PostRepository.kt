@@ -15,5 +15,4 @@ interface PostRepository {
     suspend fun getSimpleUser(userId: String): Response<PostSimpleUser>
     suspend fun likeOrUnlikePost(postId: String): Response<Boolean?>
     suspend fun getPostCommentsFlow(postId: String): Flow<PagingData<Comment>>
-    suspend fun uploadComment(postId: String, comment: UploadComment): Response<Boolean?>
 }

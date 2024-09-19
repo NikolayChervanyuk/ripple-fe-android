@@ -2,7 +2,9 @@ package com.mobi.ripple.core.data.data_source.remote.post.dto
 
 import android.util.Base64
 import com.mobi.ripple.core.domain.model.post.PostSimpleUser
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PostSimpleUserResponse(
     val id: String,
     val fullName: String?,

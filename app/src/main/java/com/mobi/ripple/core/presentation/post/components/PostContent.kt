@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.post.model.PostModel
 import com.mobi.ripple.core.presentation.post.model.PostSimpleUserModel
 import com.mobi.ripple.core.theme.RippleTheme
@@ -23,7 +24,6 @@ import java.time.Instant
 @Composable
 fun PostContent(
     modifier: Modifier = Modifier,
-    postSimpleUser: PostSimpleUserModel,
     postModel: PostModel
 ) {
     Column(
@@ -56,7 +56,7 @@ private fun PostImage(
                 contentDescription = "post image",
                 contentScale = ContentScale.Fit
             )
-        } ?: PostLoadingErrorMessage()
+        } ?: DefaultCircularProgressIndicator()//PostLoadingErrorMessage()
     }
 }
 
@@ -75,18 +75,22 @@ private fun CaptionTextPreview() {
     RippleTheme {
         Surface {
             CaptionText(
-                simpleUserModel = PostSimpleUserModel(
-                    id = "1234",
-                    fullName = "Ivan Ivanov",
-                    username = "vanko333",
-                    isActive = true,
-                    profilePicture = null
-                ),
+//                simpleUserModel = PostSimpleUserModel(
+//                    id = "1234",
+//                    fullName = "Ivan Ivanov",
+//                    username = "vanko333",
+//                    isActive = true,
+//                    profilePicture = null
+//                ),
                 postModel = PostModel(
                     id = "12345",
                     creationDate = Instant.now().minusSeconds(5L),
                     lastModifiedDate = Instant.now().minusSeconds(3L),
                     authorId = "1234",
+                    authorFullName = "Petko",
+                    authorUsername = "petko11",
+                    isAuthorActive = true,
+                    authorPfp = null,
                     postImage = null,
                     caption = "A test caption to be seen in a preview. " +
                             "Don't mind this text as it doesn't make any sense " +

@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,7 +27,7 @@ import java.time.Instant
 
 @Composable
 fun PostHeader(
-    postSimpleUser: PostSimpleUserModel,
+//    postSimpleUser: PostSimpleUserModel,
     postModel: PostModel
 ) {
     Row(
@@ -39,8 +40,8 @@ fun PostHeader(
             modifier = Modifier
                 .padding(end = 10.dp)
                 .size(38.dp),
-            profilePicture = postSimpleUser.profilePicture,
-            isActive = postSimpleUser.isActive
+            profilePicture = postModel.authorPfp,
+            isActive = postModel.isAuthorActive
         )
         Column {
             Row(
@@ -48,15 +49,15 @@ fun PostHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                val startText = postSimpleUser.fullName ?: postSimpleUser.username
-                postSimpleUser.fullName?.let {
+                val startText = postModel.authorFullName ?: postModel.authorUsername
+                postModel.authorFullName?.let {
 
                     StartText(text = startText)
                 } ?: StartText(text = "@$startText")
-                postSimpleUser.fullName?.let {
-                    if (postSimpleUser.username.length <= 20) {
+                postModel.authorFullName?.let {
+                    if (postModel.authorUsername.length <= 20) {
                         Spacer(modifier = Modifier.width(5.dp))
-                        EndText(text = "@${postSimpleUser.username}")
+                        EndText(text = "@${postModel.authorUsername}")
                     }
                 }
             }
@@ -111,32 +112,36 @@ private fun PostCreationPassedPeriod(
     )
 }
 
-@Preview
-@Composable
-private fun PostHeaderPreview() {
-    RippleTheme {
-        Surface {
-            PostHeader(
-                postSimpleUser = PostSimpleUserModel(
-                    id = "1234",
-                    fullName = "Ivan Ivanov",
-                    username = "vanko333",
-                    isActive = true,
-                    profilePicture = null
-                ),
-                postModel = PostModel(
-                    id = "12345",
-                    creationDate = Instant.now().minusSeconds(5L),
-                    lastModifiedDate = Instant.now().minusSeconds(3L),
-                    authorId = "1234",
-                    postImage = null,
-                    caption = "A test caption to be seen in a preview. " +
-                            "Don't mind this text as it doesn't make any sense",
-                    likesCount = 27,
-                    liked = false,
-                    commentsCount = 13L
-                )
-            )
-        }
-    }
-}
+//@Preview
+//@Composable
+//private fun PostHeaderPreview() {
+//    RippleTheme {
+//        Surface {
+//            PostHeader(
+////                postSimpleUser = PostSimpleUserModel(
+////                    id = "1234",
+////                    fullName = "Ivan Ivanov",
+////                    username = "vanko333",
+////                    isActive = true,
+////                    profilePicture = null
+////                ),
+//                postModel = PostModel(
+//                    id = "12345",
+//                    creationDate = Instant.now().minusSeconds(5L),
+//                    lastModifiedDate = Instant.now().minusSeconds(3L),
+//                    authorId = "1234",
+//                    authorFullName = "Petko",
+//                    authorUsername = "petko11",
+//                    isAuthorActive = true,
+//                    authorPfp = null,
+//                    postImage = null,
+//                    caption = "A test caption to be seen in a preview. " +
+//                            "Don't mind this text as it doesn't make any sense",
+//                    likesCount = 27,
+//                    liked = false,
+//                    commentsCount = 13L
+//                )
+//            )
+//        }
+//    }
+//}

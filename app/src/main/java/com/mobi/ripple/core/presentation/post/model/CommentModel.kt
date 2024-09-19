@@ -14,7 +14,7 @@ data class CommentModel(
     val createdDate: Instant,
     val lastUpdatedDate: Instant,
     val likesCount: Long,
-    val liked: Boolean,
+    var liked: Boolean,
     val repliesCount: Long,
     val comment: String
 )

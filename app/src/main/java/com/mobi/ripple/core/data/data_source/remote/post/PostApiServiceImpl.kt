@@ -4,7 +4,7 @@ import com.mobi.ripple.core.config.AppUrls
 import com.mobi.ripple.core.data.data_source.remote.post.dto.PostCommentResponse
 import com.mobi.ripple.core.data.data_source.remote.post.dto.PostResponse
 import com.mobi.ripple.core.data.data_source.remote.post.dto.PostSimpleUserResponse
-import com.mobi.ripple.core.data.data_source.remote.post.dto.UploadCommentRequest
+import com.mobi.ripple.core.data.data_source.remote.comment.dto.UploadCommentRequest
 import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiRequest
 import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiResponse
 import io.ktor.client.HttpClient
@@ -55,5 +55,12 @@ class PostApiServiceImpl(
         client.post(AppUrls.PostUrls.uploadPostComment(postId)) {
             setBody(commentRequest)
         }
+    }.sendRequest()
+
+    override suspend fun likeOrUnlikeComment(
+        postId: String,
+        commentId: String
+    ): ApiResponse<Boolean> = ApiRequest<Boolean> {
+        client.put(AppUrls.PostUrls.likeOrUnlikeComment(postId, commentId))
     }.sendRequest()
 }

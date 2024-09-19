@@ -2,18 +2,25 @@ package com.mobi.ripple.core.presentation.post.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
@@ -27,14 +34,13 @@ import com.mobi.ripple.core.presentation.components.ForwardIcon
 import com.mobi.ripple.core.presentation.components.HeartIcon
 import com.mobi.ripple.core.presentation.effects.bounceClick
 import com.mobi.ripple.core.presentation.post.model.PostModel
-import com.mobi.ripple.core.presentation.post.model.PostSimpleUserModel
 import com.mobi.ripple.core.theme.LikeRed
 import com.mobi.ripple.core.util.FormattableNumber
+import com.mobi.ripple.core.util.SoundEffects
 
 @Composable
 fun PostFooter(
     modifier: Modifier = Modifier,
-    postSimpleUser: PostSimpleUserModel,
     postModel: PostModel,
     onLikeClicked: () -> Unit,
     onCommentsClicked: () -> Unit,
@@ -44,12 +50,17 @@ fun PostFooter(
         modifier = modifier
     ) {
         CaptionText(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
-            simpleUserModel = postSimpleUser,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .padding(top = 12.dp),
+//            simpleUserModel = postSimpleUser,
             postModel = postModel
         )
         PostActionsRow(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 60.dp)
+                .padding(top = 12.dp),
             postModel = postModel,
             onLikeClicked = onLikeClicked,
             onCommentsClicked = onCommentsClicked,
@@ -61,12 +72,12 @@ fun PostFooter(
 @Composable
 fun CaptionText(
     modifier: Modifier = Modifier,
-    simpleUserModel: PostSimpleUserModel,
+//    simpleUserModel: PostSimpleUserModel,
     postModel: PostModel
 ) {
     postModel.caption?.let { captionText ->
-        val userText = "${simpleUserModel.fullName ?: simpleUserModel.username}: "
-        val prependToUserText = if (simpleUserModel.fullName == null) "@" else ""
+        val userText = "${postModel.authorFullName ?: postModel.authorUsername}: "
+        val prependToUserText = if (postModel.authorFullName == null) "@" else ""
         val shortenedCaptionText = remember { mutableStateOf(captionText) }
         val isCaptionShortened = remember { mutableStateOf(true) }
         val isCaptionTooLong = remember { mutableStateOf(false) }
@@ -134,26 +145,39 @@ private fun PostActionsRow(
     onCommentsClicked: () -> Unit,
     onShareClicked: () -> Unit
 ) {
-
+    val isLiked = remember { mutableStateOf(postModel.liked) }
+    val likesCount = remember { mutableLongStateOf(postModel.likesCount) }
+    if (isLiked.value != postModel.liked){
+        isLiked.value = postModel.liked
+        likesCount.longValue = postModel.likesCount
+    }
+    val context = LocalContext.current
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         PostLikeButton(
             modifier = Modifier
                 .bounceClick {
+                    likesCount.longValue += if (isLiked.value) -1 else 1
+                    isLiked.value = !isLiked.value
+                    if(isLiked.value) SoundEffects.LikeSound.play(context)
                     onLikeClicked()
                 }
                 .size(30.dp),
-            isLiked = postModel.liked,
-            likes = postModel.likesCount,
+            isLiked = isLiked.value,
+            likes = likesCount.longValue
         )
         PostCommentsButton(
             modifier = Modifier
-                .clickable {
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
                     onCommentsClicked()
                 }
-                .size(30.dp)
+                .size(30.dp),
+            commentsCount = postModel.commentsCount
         )
         PostShareButton(
             modifier = Modifier
@@ -174,28 +198,65 @@ private fun PostLikeButton(
     val tint = if (isLiked) LikeRed
     else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeartIcon(
             modifier = modifier,
             tint = tint
         )
         Text(
-            modifier = Modifier.padding(top = 4.dp),
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .width(IntrinsicSize.Max),
             text = FormattableNumber.format(likes),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
     }
 }
 
 
 @Composable
-private fun PostCommentsButton(modifier: Modifier = Modifier) {
-    CommentBubbleIcon(modifier = modifier)
+private fun PostCommentsButton(
+    modifier: Modifier = Modifier,
+    commentsCount: Long
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CommentBubbleIcon(modifier = modifier)
+        Text(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .width(IntrinsicSize.Max),
+            text = FormattableNumber.format(commentsCount),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
 private fun PostShareButton(modifier: Modifier = Modifier) {
-    ForwardIcon(modifier = modifier)
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ForwardIcon(modifier = modifier)
+        Text(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .width(IntrinsicSize.Max),
+            text = FormattableNumber.format(0),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+
+
 }

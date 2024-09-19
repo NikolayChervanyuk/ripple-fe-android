@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mobi.ripple.core.presentation.followers_following.FollowersFollowingScreenRoute
 import com.mobi.ripple.core.presentation.followers_following.GetType
+import com.mobi.ripple.core.presentation.posts.PostsScreenRoute
 import com.mobi.ripple.core.presentation.profile.components.ProfilePostsSection
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.components.ProfileHeaderSection
@@ -102,7 +103,9 @@ fun PersonalProfileScreen(
         )
         ProfilePostsSection(
             postsFlow = state.value.userProfileSimplePostsFlow,
-            onPostClicked = {index, postModel -> TODO()}
+            onPostClicked = {index, simplePostModel ->
+                navController.navigate(PostsScreenRoute(index, simplePostModel.authorId))
+            }
         )
     }
 }

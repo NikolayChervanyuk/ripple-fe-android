@@ -17,6 +17,7 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.mobi.ripple.core.presentation.components.CircularProgressIndicatorRow
 import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
 import kotlinx.coroutines.flow.Flow
@@ -68,18 +69,6 @@ fun ProfilePostsSection(
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-    }
-}
-
-@Composable
-private fun CircularProgressIndicatorRow() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 40.dp, top = 15.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        DefaultCircularProgressIndicator()
     }
 }
 

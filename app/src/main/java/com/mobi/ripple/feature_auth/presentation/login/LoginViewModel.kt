@@ -48,7 +48,7 @@ class LoginViewModel @Inject constructor(
                         loginResponse.content?.let {
                             GlobalAppManager
                                 .onSuccessfulLogin(it)
-                        } ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
+                        } ?: _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                     } else _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                 }
             }

@@ -89,10 +89,10 @@ fun ProfileScreen(
                 onFollowingClicked = { viewModel.onEvent(ProfileEvent.FollowingClicked) }
             )
             ProfilePostsSection(
+                postsFlow = state.value.userProfileSimplePostsFlow,
                 onPostClicked = { index, simplePostModel ->
                     navController.navigate(PostsScreenRoute(index, simplePostModel.authorId))
-                },
-                state.value.userProfileSimplePostsFlow
+                }
             )
         }
     }

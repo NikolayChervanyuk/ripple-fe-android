@@ -3,7 +3,6 @@ package com.mobi.ripple.feature_app.feature_profile.presentation.profile.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_app.feature_profile.domain.use_case.settings.SettingsUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.HttpClient
@@ -32,6 +31,7 @@ class SettingsViewModel @Inject constructor(
         when (event) {
             is SettingsEvent.LogoutRequested -> {
                 viewModelScope.launch {
+                    GlobalAppManager.deleteProfilePicture()
                     GlobalAppManager.onLogout()
                 }
             }
@@ -42,6 +42,7 @@ class SettingsViewModel @Inject constructor(
                     if (result.isError) {
                         //Show error
                     } else {
+                        GlobalAppManager.deleteProfilePicture()
                         GlobalAppManager.onLogout()
                     }
                 }

@@ -2,7 +2,7 @@ package com.mobi.ripple.core.config
 
 sealed interface AppUrls {
     companion object {
-        const val BASE_URL = "http://192.168.1.5:8080/"
+        const val BASE_URL = "http://192.168.1.2:8080/"
     }
 
     object AuthUrls {
@@ -39,15 +39,32 @@ sealed interface AppUrls {
     }
 
     object PostUrls {
-
         private const val USER = "user"
         private const val POST = "p"
+
         fun getSimpleUser(userId: String) = "$USER?id=$userId"
+
         fun getPost(postId: String) = "$POST/$postId"
         fun getPosts(authorId: String, page: Int) = "$POST?authorId=$authorId&page=$page"
         fun likeOrUnlikePost(postId: String) = "$POST/$postId/like"
         fun getPostComments(postId: String, page: Int) = "$POST/$postId/comments?page=$page"
-        fun uploadPostComment(postId: String) = "$POST/$postId/comments"
-    }
 
+        private fun postCommentsRoute(postId: String) = "$POST/$postId/comments"
+
+        fun uploadPostComment(postId: String) = postCommentsRoute(postId)
+        fun likeOrUnlikeComment(postId: String, commentId: String) =
+            "${postCommentsRoute(postId)}/$commentId/like"
+        fun editDeleteComment(postId: String, commentId: String) =
+            "${postCommentsRoute(postId)}?id=$commentId"
+
+        private fun commentRepliesRoute(postId: String, commentId: String) =
+            "${postCommentsRoute(postId)}/$commentId/replies"
+
+        fun uploadCommentReply(postId: String, commentId: String) =
+            commentRepliesRoute(postId, commentId)
+        fun likeOrUnlikeReply(postId: String, commentId: String, replyId: String) =
+            "${commentRepliesRoute(postId, commentId)}/$replyId/like"
+        fun editDeleteReply(postId: String, commentId: String, replyId: String) =
+            "${commentRepliesRoute(postId, commentId)}?id=$replyId"
+    }
 }

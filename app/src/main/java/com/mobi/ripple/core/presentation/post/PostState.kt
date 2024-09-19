@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import com.mobi.ripple.core.presentation.post.model.CommentModel
 import com.mobi.ripple.core.presentation.post.model.PostModel
 import com.mobi.ripple.core.presentation.post.model.PostSimpleUserModel
+import com.mobi.ripple.core.presentation.post.model.ReplyModel
 import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -29,6 +30,10 @@ data class PostState(
             creationDate = Instant.MIN,
             lastModifiedDate = Instant.MIN,
             authorId = "",
+            authorFullName = null,
+            authorUsername = "",
+            authorPfp = null,
+            isAuthorActive = false,
             postImage = null,
             caption = null,
             likesCount = 0L,
@@ -36,5 +41,6 @@ data class PostState(
             commentsCount = 0L
         )
     ),
-    var postCommentsFlow: Flow<PagingData<CommentModel>> = emptyFlow()
+    var postCommentsFlow: Flow<PagingData<CommentModel>> = emptyFlow(),
+    var commentRepliesFlow: Flow<PagingData<ReplyModel>> = emptyFlow()
 )

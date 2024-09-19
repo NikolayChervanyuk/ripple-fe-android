@@ -34,8 +34,8 @@ class PostCommentPager(
             if (!response.isError) {
                 return LoadResult.Page(
                     data = response.content!!,
-                    prevKey = if (loadKey <= 0) 0 else (loadKey - 1),
-                    nextKey = loadKey + 1
+                    prevKey = if(loadKey == 0) null else loadKey - 1,
+                    nextKey = if(response.content.isEmpty()) null else loadKey + 1
                 )
             }
             return LoadResult.Error(ApiResponseException(response.httpStatusCode))

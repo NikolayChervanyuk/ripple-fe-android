@@ -6,8 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.map
 import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.core.domain.use_case.post.PostUseCases
+import com.mobi.ripple.core.presentation.post.components.comments.CommentAction
 import com.mobi.ripple.core.presentation.post.model.asCommentModel
-import com.mobi.ripple.core.presentation.post.model.asPostSimpleUserModel
+import com.mobi.ripple.core.presentation.post.model.asReplyModel
 import com.mobi.ripple.core.util.BitmapUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,33 +43,14 @@ class PostViewModel @Inject constructor(
         when (event) {
             is PostEvent.InitPost -> {
                 viewModelScope.launch {
-//                    val postResponse = postUseCases.getPostUseCase(event.postModel.id)
-//                    if (!postResponse.isError) {
-//                        _state.value.postModel.value = postResponse.content!!.asPostModel()
                     _state.value.postModel.value = event.postModel
-                    val authorResponse = postUseCases.getSimpleUserUseCase(
-                        _state.value.postModel.value.authorId
-                    )
-                    if (!authorResponse.isError) {
-                        launch {
-                            _state.value
-                                .postSimpleUserModel.value =
-                                authorResponse.content!!.asPostSimpleUserModel()
-                        }
-                    }
-                    //}
                 }
             }
 
             is PostEvent.PostLikeClicked -> {
                 viewModelScope.launch {
-                    val response = postUseCases
-                        .changePostLikeStateUseCase(
-                            state.value
-                                .postModel.value
-                                .id
-                        )
-                    if (!response.isError) {
+                    val oldModel = _state.value.postModel.value
+                    launch {
                         val newPostModel = _state.value
                             .postModel.value
                         newPostModel.liked = !newPostModel.liked
@@ -76,6 +58,16 @@ class PostViewModel @Inject constructor(
 
                         _state.value
                             .postModel.value = newPostModel
+                    }
+                    val response = postUseCases
+                        .changePostLikeStateUseCase(
+                            state.value
+                                .postModel.value
+                                .id
+                        )
+                    if (response.isError) {
+                        _state.value
+                            .postModel.value = oldModel
                     }
                 }
             }
@@ -95,16 +87,137 @@ class PostViewModel @Inject constructor(
                 }
             }
 
-            is PostEvent.UploadCommentRequested -> {
-                viewModelScope.launch {
-                    val response = postUseCases
-                        .uploadCommentUseCase(event.postId, event.commentText)
-                    if (!response.isError) {
-                        _eventFlow.emit(UiEvent.UploadCommentSuccessful)
-                    } else {
-                        _eventFlow.emit(
-                            UiEvent.ShowSnackBar("Comment failed to post, try again later")
-                        )
+            is PostEvent.CommentActionRequested -> {
+                when (val action = event.commentAction) {
+                    is CommentAction.NewComment -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .uploadCommentUseCase(event.postId, action.text!!)
+                            if (!response.isError) {
+                                _state.value.postModel.value = with(_state.value.postModel.value) {
+                                    this.copy(commentsCount = commentsCount + 1)
+                                }
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful("Comment uploaded")
+                                )
+                            } else {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationFailure("Comment failed to post, try again later")
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.LikeComment -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .changeCommentLikeStateUseCase(event.postId, action.commentId)
+                            if (response.isError) {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationFailure("Failed to like comment, try again later")
+                                )
+                            } else {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful(null)
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.EditComment -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .editCommentUseCase(event.postId, action.commentId, action.text!!)
+                            if (!response.isError) {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful("Edit successful")
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.DeleteComment -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .deleteCommentUseCase(event.postId, action.commentId)
+                            if (!response.isError) {
+                                _state.value.postModel.value = with(_state.value.postModel.value) {
+                                    this.copy(commentsCount = commentsCount - 1)
+                                }
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful("Comment deleted")
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.LoadReplies -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .getCommentRepliesFlowUseCase(event.postId, action.commentId)
+                                .map { pagingData -> pagingData.map { it.asReplyModel() } }
+                            _state.value.commentRepliesFlow = response
+                        }
+                    }
+
+                    is CommentAction.NewReply -> {
+                        viewModelScope.launch {
+                            val response = postUseCases.uploadReplyUseCase(
+                                event.postId,
+                                action.commentId,
+                                action.text!!
+                            )
+                            if (!response.isError) {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful("Reply posted")
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.LikeReply -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .changeReplyLikeStateUseCase(
+                                    event.postId,
+                                    action.commentId,
+                                    action.replyId
+                                )
+                            if (response.isError) {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationFailure("Service unavailable")
+                                )
+                            } else _eventFlow.emit(
+                                UiEvent.CommentOperationSuccessful(null)
+                            )
+                        }
+                    }
+
+                    is CommentAction.EditReply -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .editReplyUseCase(
+                                    event.postId,
+                                    action.commentId,
+                                    action.replyId,
+                                    action.text!!
+                                )
+                            if (!response.isError) {
+                                _eventFlow.emit(
+                                    UiEvent.CommentOperationSuccessful("Reply edited successfully")
+                                )
+                            }
+                        }
+                    }
+
+                    is CommentAction.DeleteReply -> {
+                        viewModelScope.launch {
+                            val response = postUseCases
+                                .deleteReplyUseCase(event.postId, action.commentId, action.replyId)
+                            if (!response.isError) {
+                                _eventFlow.emit(UiEvent.CommentOperationSuccessful("Reply deleted"))
+                            }
+                        }
                     }
                 }
             }
@@ -114,6 +227,11 @@ class PostViewModel @Inject constructor(
     sealed class UiEvent {
         data object ShowCommentsSection : UiEvent()
         data class ShowSnackBar(val message: String) : UiEvent()
-        data object UploadCommentSuccessful : UiEvent()
+        data class CommentOperationSuccessful(
+            val message: String?,
+            val triggerRefresh: Boolean = true
+        ) : UiEvent()
+
+        data class CommentOperationFailure(val message: String) : UiEvent()
     }
 }
