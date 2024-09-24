@@ -22,11 +22,9 @@ import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndic
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
 import kotlinx.coroutines.flow.Flow
 
-typealias Index = Int
-
 @Composable
 fun ProfilePostsSection(
-    onPostClicked: (index: Index, simplePostModel: UserProfileSimplePostModel) -> Unit,
+    onPostClicked: (index: Int, simplePostModel: UserProfileSimplePostModel) -> Unit,
     postsFlow: Flow<PagingData<UserProfileSimplePostModel>>
 ) {
     val postsLazyPagingItems = postsFlow.collectAsLazyPagingItems()

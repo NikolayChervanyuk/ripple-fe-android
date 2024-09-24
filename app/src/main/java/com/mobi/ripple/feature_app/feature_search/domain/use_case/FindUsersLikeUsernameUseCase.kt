@@ -1,6 +1,6 @@
 package com.mobi.ripple.feature_app.feature_search.domain.use_case
 
-import com.mobi.ripple.core.domain.model.Response
+import com.mobi.ripple.core.domain.common.Response
 import com.mobi.ripple.feature_app.feature_search.domain.model.SearchSimpleUser
 import com.mobi.ripple.feature_app.feature_search.domain.repository.SearchRepository
 

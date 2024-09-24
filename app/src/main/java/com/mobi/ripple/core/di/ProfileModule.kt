@@ -1,15 +1,15 @@
 package com.mobi.ripple.core.di
 
-import com.mobi.ripple.core.data.data_source.local.AppDatabase
-import com.mobi.ripple.core.data.data_source.remote.profile.ProfileApiService
-import com.mobi.ripple.core.data.data_source.remote.profile.ProfileApiServiceImpl
-import com.mobi.ripple.core.data.repository.ProfileRepositoryImpl
-import com.mobi.ripple.core.domain.repository.ProfileRepository
-import com.mobi.ripple.core.domain.use_case.profile.ChangeFollowingStateUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetProfileInfoUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetProfilePictureUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetSimplePostsFlowUseCase
-import com.mobi.ripple.core.domain.use_case.profile.ProfileUseCases
+import com.mobi.ripple.core.data.common.AppDatabase
+import com.mobi.ripple.core.data.profile.data_source.remote.ProfileApiService
+import com.mobi.ripple.core.data.profile.data_source.remote.ProfileApiServiceImpl
+import com.mobi.ripple.core.data.profile.repository.ProfileRepositoryImpl
+import com.mobi.ripple.core.domain.profile.repository.ProfileRepository
+import com.mobi.ripple.core.domain.profile.use_case.ChangeFollowingStateUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfileInfoUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfilePictureUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetSimplePostsFlowUseCase
+import com.mobi.ripple.core.domain.profile.use_case.ProfileUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -3,7 +3,7 @@ package com.mobi.ripple.core.presentation.followers_following
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.domain.use_case.followers_following.FollowersFollowingUseCases
+import com.mobi.ripple.core.domain.followers_following.use_case.FollowersFollowingUseCases
 import com.mobi.ripple.core.presentation.followers_following.model.asFollowersFollowingSimpleUserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,7 +36,7 @@ class FollowersFollowingViewModel @Inject constructor(
                                 .isMeState.value = storedUsername == event.username
                         } ?: GlobalAppManager.onLogout()
                     }
-                     when (event.getType) {
+                    when (event.getType) {
                         GetType.FOLLOWERS -> {
                             val response = useCases.getFollowersUseCase(
                                 event.username,

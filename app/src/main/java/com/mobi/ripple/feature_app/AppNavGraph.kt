@@ -102,7 +102,7 @@ fun AppNavGraph(
             val route = it.toRoute<PostsScreenRoute>()
             val viewModel = hiltViewModel<PostsViewModel>()
             PostsScreen(
-                startIndex = route.startIndex,
+                startItemIndex = route.startIndex,
                 authorId = route.authorId,
                 viewModel = viewModel,
                 navController = mainNavController,

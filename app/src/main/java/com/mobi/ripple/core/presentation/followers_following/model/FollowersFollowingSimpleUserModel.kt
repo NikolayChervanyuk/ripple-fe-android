@@ -2,7 +2,7 @@ package com.mobi.ripple.core.presentation.followers_following.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import com.mobi.ripple.core.domain.model.followers_following.FollowersFollowingSimpleUser
+import com.mobi.ripple.core.domain.followers_following.model.FollowersFollowingSimpleUser
 import com.mobi.ripple.core.presentation.components.SimpleUserItemModel
 import com.mobi.ripple.core.util.BitmapUtils
 

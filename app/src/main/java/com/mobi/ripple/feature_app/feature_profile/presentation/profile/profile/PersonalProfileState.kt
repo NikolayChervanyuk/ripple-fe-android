@@ -9,7 +9,6 @@ import androidx.paging.PagingData
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.model.NewPostModel
 import com.mobi.ripple.core.presentation.profile.model.UserProfileInfoModel
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 

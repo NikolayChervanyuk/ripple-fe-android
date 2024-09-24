@@ -1,6 +1,6 @@
 package com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto
 
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileInfo
+import com.mobi.ripple.core.domain.profile.model.UserProfileInfo
 import kotlinx.serialization.Serializable
 
 @Serializable

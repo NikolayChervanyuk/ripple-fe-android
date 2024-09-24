@@ -257,6 +257,4 @@ private fun PostShareButton(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center
         )
     }
-
-
 }

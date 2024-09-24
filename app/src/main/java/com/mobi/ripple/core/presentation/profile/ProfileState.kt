@@ -1,13 +1,10 @@
 package com.mobi.ripple.core.presentation.profile
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.paging.PagingData
 import com.mobi.ripple.core.presentation.profile.model.UserProfileInfoModel
 import com.mobi.ripple.core.presentation.profile.model.UserProfileSimplePostModel
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 

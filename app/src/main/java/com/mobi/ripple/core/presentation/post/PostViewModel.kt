@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.map
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.domain.use_case.post.PostUseCases
+import com.mobi.ripple.core.domain.post.use_case.PostUseCases
 import com.mobi.ripple.core.presentation.post.components.comments.CommentAction
 import com.mobi.ripple.core.presentation.post.model.asCommentModel
 import com.mobi.ripple.core.presentation.post.model.asReplyModel

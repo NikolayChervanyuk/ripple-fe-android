@@ -8,7 +8,6 @@ import com.mobi.ripple.core.presentation.post.model.CommentModel
 import com.mobi.ripple.core.presentation.post.model.PostModel
 import com.mobi.ripple.core.presentation.post.model.PostSimpleUserModel
 import com.mobi.ripple.core.presentation.post.model.ReplyModel
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.Instant

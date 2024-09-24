@@ -1,6 +1,6 @@
 package com.mobi.ripple.feature_app.feature_profile.presentation.profile.model
 
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileNewPost
+import com.mobi.ripple.core.domain.profile.model.UserProfileNewPost
 
 data class NewPostModel(
     var imageBytes: ByteArray,

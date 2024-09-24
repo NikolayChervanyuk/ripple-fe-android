@@ -3,7 +3,7 @@ package com.mobi.ripple.core.presentation.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.map
-import com.mobi.ripple.core.domain.use_case.profile.ProfileUseCases
+import com.mobi.ripple.core.domain.profile.use_case.ProfileUseCases
 import com.mobi.ripple.core.presentation.profile.model.asUserProfileInfoModel
 import com.mobi.ripple.core.presentation.profile.model.asUserProfileSimplePostModel
 import dagger.hilt.android.lifecycle.HiltViewModel

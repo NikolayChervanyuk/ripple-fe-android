@@ -1,9 +1,9 @@
 package com.mobi.ripple.core.di
 
-import com.mobi.ripple.core.data.data_source.remote.reply.ReplyApiService
-import com.mobi.ripple.core.data.data_source.remote.reply.ReplyApiServiceImpl
-import com.mobi.ripple.core.data.repository.ReplyRepositoryImpl
-import com.mobi.ripple.core.domain.repository.ReplyRepository
+import com.mobi.ripple.core.data.reply.data_source.remote.ReplyApiService
+import com.mobi.ripple.core.data.reply.data_source.remote.ReplyApiServiceImpl
+import com.mobi.ripple.core.data.reply.repository.ReplyRepositoryImpl
+import com.mobi.ripple.core.domain.post.repository.ReplyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

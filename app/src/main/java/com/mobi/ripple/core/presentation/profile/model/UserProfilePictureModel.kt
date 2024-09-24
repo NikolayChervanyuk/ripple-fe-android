@@ -1,6 +1,6 @@
 package com.mobi.ripple.core.presentation.profile.model
 
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfilePicture
+import com.mobi.ripple.core.domain.profile.model.UserProfilePicture
 
 data class UserProfilePictureModel(
     val image: ByteArray

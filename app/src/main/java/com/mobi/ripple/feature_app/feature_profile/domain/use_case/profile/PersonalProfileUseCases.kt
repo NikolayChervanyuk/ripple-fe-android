@@ -1,8 +1,8 @@
 package com.mobi.ripple.feature_app.feature_profile.domain.use_case.profile
 
-import com.mobi.ripple.core.domain.use_case.profile.GetProfileInfoUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetProfilePictureUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetSimplePostsFlowUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfileInfoUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfilePictureUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetSimplePostsFlowUseCase
 
 data class PersonalProfileUseCases(
     val getProfilePictureUseCase: GetProfilePictureUseCase,

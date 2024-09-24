@@ -1,9 +1,9 @@
 package com.mobi.ripple.feature_app.feature_profile.di
 
-import com.mobi.ripple.core.data.data_source.local.AppDatabase
-import com.mobi.ripple.core.domain.use_case.profile.GetProfileInfoUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetProfilePictureUseCase
-import com.mobi.ripple.core.domain.use_case.profile.GetSimplePostsFlowUseCase
+import com.mobi.ripple.core.data.common.AppDatabase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfileInfoUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetProfilePictureUseCase
+import com.mobi.ripple.core.domain.profile.use_case.GetSimplePostsFlowUseCase
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiServiceImpl
 import com.mobi.ripple.feature_app.feature_profile.data.repository.PersonalProfileRepositoryImpl

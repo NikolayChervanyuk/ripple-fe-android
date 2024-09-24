@@ -1,12 +1,12 @@
 package com.mobi.ripple.core.di
 
-import com.mobi.ripple.core.data.data_source.remote.followers_following.FollowersFollowingApiService
-import com.mobi.ripple.core.data.data_source.remote.followers_following.FollowersFollowingApiServiceImpl
-import com.mobi.ripple.core.data.repository.FollowersFollowingRepositoryImpl
-import com.mobi.ripple.core.domain.repository.FollowersFollowingRepository
-import com.mobi.ripple.core.domain.use_case.followers_following.FollowersFollowingUseCases
-import com.mobi.ripple.core.domain.use_case.followers_following.GetFollowersUseCase
-import com.mobi.ripple.core.domain.use_case.followers_following.GetFollowingUseCase
+import com.mobi.ripple.core.data.followers_following.data_source.remote.FollowersFollowingApiService
+import com.mobi.ripple.core.data.followers_following.data_source.remote.FollowersFollowingApiServiceImpl
+import com.mobi.ripple.core.data.followers_following.repository.FollowersFollowingRepositoryImpl
+import com.mobi.ripple.core.domain.followers_following.repository.FollowersFollowingRepository
+import com.mobi.ripple.core.domain.followers_following.use_case.FollowersFollowingUseCases
+import com.mobi.ripple.core.domain.followers_following.use_case.GetFollowersUseCase
+import com.mobi.ripple.core.domain.followers_following.use_case.GetFollowingUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -2,7 +2,7 @@ package com.mobi.ripple.core.presentation.post.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import com.mobi.ripple.core.domain.model.post.Comment
+import com.mobi.ripple.core.domain.post.model.Comment
 import com.mobi.ripple.core.util.BitmapUtils
 import java.time.Instant
 

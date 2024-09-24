@@ -1,7 +1,8 @@
 package com.mobi.ripple.feature_app.feature_profile.data.data_source.remote
 
-import com.mobi.ripple.core.data.data_source.remote.profile.ProfileApiService
-import com.mobi.ripple.core.data.data_source.remote.wrappers.ApiResponse
+
+import com.mobi.ripple.core.data.common.data_source.wrappers.ApiResponse
+import com.mobi.ripple.core.data.profile.data_source.remote.ProfileApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto.UpdateUserProfileInfoRequest
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto.UploadNewPostRequest
 

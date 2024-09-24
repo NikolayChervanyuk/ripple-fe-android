@@ -1,9 +1,9 @@
 package com.mobi.ripple.core.di
 
-import com.mobi.ripple.core.data.data_source.remote.comment.CommentApiService
-import com.mobi.ripple.core.data.data_source.remote.comment.CommentApiServiceImpl
-import com.mobi.ripple.core.data.repository.CommentRepositoryImpl
-import com.mobi.ripple.core.domain.repository.CommentRepository
+import com.mobi.ripple.core.data.comment.data_source.remote.CommentApiService
+import com.mobi.ripple.core.data.comment.data_source.remote.CommentApiServiceImpl
+import com.mobi.ripple.core.data.comment.repository.CommentRepositoryImpl
+import com.mobi.ripple.core.domain.post.repository.CommentRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -2,8 +2,8 @@ package com.mobi.ripple.core.presentation.profile.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.mobi.ripple.core.domain.profile.model.UserProfileSimplePost
 import com.mobi.ripple.core.util.BitmapUtils
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileSimplePost
 import kotlinx.serialization.Serializable
 
 @Serializable

@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun PostsScreen(
-    startIndex: Int,
+    startItemIndex: Int,
     authorId: String,
     viewModel: PostsViewModel,
     navController: NavHostController,
@@ -37,8 +37,8 @@ fun PostsScreen(
         .postsFlowState
         .collectAsLazyPagingItems()
     LaunchedEffect(key1 = true) {
-        viewModel.onEvent(PostsEvent.InitPostsList(startIndex, authorId))
-        lazyListState.scrollToItem(startIndex)
+        viewModel.onEvent(PostsEvent.InitPostsList(startItemIndex, authorId))
+//        lazyListState.animateScrollToItem(startItemIndex)
     }
     Column(
         modifier = Modifier.fillMaxSize()

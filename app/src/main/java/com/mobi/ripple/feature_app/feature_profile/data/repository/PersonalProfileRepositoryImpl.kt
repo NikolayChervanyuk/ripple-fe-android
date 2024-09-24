@@ -1,13 +1,13 @@
 package com.mobi.ripple.feature_app.feature_profile.data.repository
 
-import com.mobi.ripple.core.data.data_source.local.AppDatabase
-import com.mobi.ripple.core.data.repository.ProfileRepositoryImpl
-import com.mobi.ripple.core.domain.model.Response
+import com.mobi.ripple.core.data.common.AppDatabase
+import com.mobi.ripple.core.data.profile.repository.ProfileRepositoryImpl
+import com.mobi.ripple.core.domain.common.Response
+import com.mobi.ripple.core.domain.profile.model.UserProfileInfo
+import com.mobi.ripple.core.domain.profile.model.UserProfileNewPost
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.PersonalProfileApiService
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto.asUpdateUserProfileInfoRequest
 import com.mobi.ripple.feature_app.feature_profile.data.data_source.remote.dto.asUploadPostRequest
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileInfo
-import com.mobi.ripple.feature_app.feature_profile.domain.model.UserProfileNewPost
 import com.mobi.ripple.feature_app.feature_profile.domain.repository.PersonalProfileRepository
 
 class PersonalProfileRepositoryImpl(

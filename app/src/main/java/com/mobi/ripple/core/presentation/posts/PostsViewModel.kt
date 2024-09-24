@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.mobi.ripple.core.domain.use_case.post.PostUseCases
-import com.mobi.ripple.core.domain.use_case.posts.PostsUseCases
+import com.mobi.ripple.core.domain.post.use_case.PostUseCases
+import com.mobi.ripple.core.domain.post.use_case.posts.PostsUseCases
 import com.mobi.ripple.core.presentation.post.PostViewModel
 import com.mobi.ripple.core.presentation.post.model.asPostModel
 import com.mobi.ripple.core.presentation.posts.model.PostItemModel
@@ -38,7 +38,7 @@ class PostsViewModel @Inject constructor(
                 viewModelScope.launch {
                     state.value
                         .postsFlowState = postsUseCases.getPostsUseCase(
-                        event.startIndex,
+                        event.startItemIndex,
                         event.authorId
                     ).map { pagingData ->
                         pagingData.map {
@@ -57,9 +57,7 @@ class PostsViewModel @Inject constructor(
         return PostViewModelFactory(postUseCases).create(PostViewModel::class.java)
     }
 
-    sealed class UiEvent {
-//        data object : UiEvent()
-    }
+    sealed class UiEvent {}
 
     private class PostViewModelFactory(
         private val postUseCases: PostUseCases

@@ -4,7 +4,7 @@ import android.content.Context
 import arrow.core.Either
 import com.mobi.ripple.RootAppManager
 import com.mobi.ripple.core.config.AppUrls
-import com.mobi.ripple.core.data.data_source.local.AppDatabase
+import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.core.util.toNetworkError
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RefreshTokenRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RefreshTokenResponse
