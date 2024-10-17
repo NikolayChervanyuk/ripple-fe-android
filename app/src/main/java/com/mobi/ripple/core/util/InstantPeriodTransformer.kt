@@ -13,6 +13,8 @@ class InstantPeriodTransformer {
             if (passedTimeSeconds < 0) {
                 Timber.e("Passed time can't be negative")
             }
+            if(passedTimeSeconds == 0L) return "0${Period.entries[0].periodString}"
+
             var i = Period.entries.size - 1
             var periodNumber = passedTimeSeconds / Period.entries[i].periodDurationSeconds
 

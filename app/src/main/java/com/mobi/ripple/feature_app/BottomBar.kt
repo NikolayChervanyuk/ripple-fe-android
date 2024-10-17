@@ -1,5 +1,6 @@
 package com.mobi.ripple.feature_app
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,17 +27,25 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.components.RippleBadge
+import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_explore.presentation.screens.ExploreScreenRoute
 import com.mobi.ripple.feature_app.feature_feed.presentation.screens.FeedScreenRoute
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.PersonalProfileGraphRoute
 import com.mobi.ripple.feature_app.feature_search.presentation.search.SearchScreenRoute
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+
+private val bottomNavBarIconSize = 21.dp
 
 private sealed class BottomNavItem {
     data class BottomNavItemData(
@@ -46,7 +58,6 @@ private sealed class BottomNavItem {
     )
 
     companion object {
-        private val bottomNavBarIconSize = 21.dp
         val FeedItem: BottomNavItemData =
             BottomNavItemData(
                 title = "Home",
@@ -157,8 +168,22 @@ fun BottomBar(navController: NavHostController) {
     }
     val navStackBackEntry by navController.currentBackStackEntryAsState()
 
+//    val coroutineScope = rememberCoroutineScope()
+//    val personalPfp = remember { mutableStateOf<ImageBitmap?>(null) }
+//    LaunchedEffect(key1 = true) {
+//        coroutineScope.launch {
+//            personalPfp.value = GlobalAppManager.getProfilePicture()?.let {
+//                val outputStream = ByteArrayOutputStream()
+//                BitmapUtils.convertImageByteArrayToBitmap(it)
+//                    .compress(Bitmap.CompressFormat.JPEG, 20, outputStream)
+//                BitmapUtils.convertImageByteArrayToBitmap(outputStream.toByteArray())
+//                    .asImageBitmap()
+//            }
+//        }
+//    }
+
     LaunchedEffect(key1 = navStackBackEntry) {
-        when(navStackBackEntry?.destination?.route) {
+        when (navStackBackEntry?.destination?.route) {
             FeedScreenRoute.javaClass.name -> selectedItemIndex.intValue = 0
             SearchScreenRoute.javaClass.name -> selectedItemIndex.intValue = 1
             ExploreScreenRoute.javaClass.name -> selectedItemIndex.intValue = 2
@@ -194,7 +219,20 @@ fun BottomBar(navController: NavHostController) {
                         modifier = Modifier.padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        //Icon
+                        //Icon TODO: show pfp image
+//                        if (index == 3) {
+//                            personalPfp.value?.let {
+//                                ProfilePicture(
+//                                    modifier = Modifier.size(bottomNavBarIconSize + 7.dp),
+//                                    profilePicture = personalPfp.value,
+//                                    borderColor = colorScheme.primary,
+//                                    borderWidthDp = if (
+//                                        selectedItemIndex.intValue == index
+//                                    ) 2.dp else 0.dp
+//                                )
+//                            }
+//                        }
+//                        else
                         if ((index == selectedItemIndex.intValue)) {
                             item.selectedIcon()
                         } else item.unselectedIcon()

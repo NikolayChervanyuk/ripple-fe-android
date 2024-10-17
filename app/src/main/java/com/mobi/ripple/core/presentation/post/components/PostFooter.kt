@@ -42,6 +42,9 @@ import com.mobi.ripple.core.util.SoundEffects
 fun PostFooter(
     modifier: Modifier = Modifier,
     postModel: PostModel,
+    likesCount: Long,
+    isLiked: Boolean,
+    commentsCount: Long, //?
     onLikeClicked: () -> Unit,
     onCommentsClicked: () -> Unit,
     onShareClicked: () -> Unit
@@ -61,7 +64,10 @@ fun PostFooter(
                 .fillMaxWidth()
                 .padding(horizontal = 60.dp)
                 .padding(top = 12.dp),
-            postModel = postModel,
+//            postModel = postModel,
+            likesCount = likesCount,
+            isLiked = isLiked,
+            commentsCount = commentsCount,
             onLikeClicked = onLikeClicked,
             onCommentsClicked = onCommentsClicked,
             onShareClicked = onShareClicked
@@ -75,9 +81,9 @@ fun CaptionText(
 //    simpleUserModel: PostSimpleUserModel,
     postModel: PostModel
 ) {
-    postModel.caption?.let { captionText ->
-        val userText = "${postModel.authorFullName ?: postModel.authorUsername}: "
-        val prependToUserText = if (postModel.authorFullName == null) "@" else ""
+    postModel.caption.value?.let { captionText ->
+        val userText = "${postModel.authorFullName.value ?: postModel.authorUsername.value}: "
+        val prependToUserText = if (postModel.authorFullName.value == null) "@" else ""
         val shortenedCaptionText = remember { mutableStateOf(captionText) }
         val isCaptionShortened = remember { mutableStateOf(true) }
         val isCaptionTooLong = remember { mutableStateOf(false) }
@@ -140,17 +146,21 @@ fun CaptionText(
 @Composable
 private fun PostActionsRow(
     modifier: Modifier = Modifier,
-    postModel: PostModel,
+//    postModel: PostModel,
+    likesCount: Long,
+    isLiked: Boolean,
+    commentsCount: Long,
     onLikeClicked: () -> Unit,
     onCommentsClicked: () -> Unit,
     onShareClicked: () -> Unit
 ) {
-    val isLiked = remember { mutableStateOf(postModel.liked) }
-    val likesCount = remember { mutableLongStateOf(postModel.likesCount) }
-    if (isLiked.value != postModel.liked){
-        isLiked.value = postModel.liked
-        likesCount.longValue = postModel.likesCount
-    }
+//    val model = remember { mutableStateOf(postModel)}
+//    val isLiked = remember { postModel.liked }
+//    val likesCount = remember { mutableLongStateOf(postModel.likesCount.value) }
+//    if (isLiked.value != postModel.liked.value) {
+//        isLiked.value = postModel.liked.value
+//        likesCount.longValue = postModel.likesCount.value
+//    }
     val context = LocalContext.current
     Row(
         modifier = modifier,
@@ -159,14 +169,14 @@ private fun PostActionsRow(
         PostLikeButton(
             modifier = Modifier
                 .bounceClick {
-                    likesCount.longValue += if (isLiked.value) -1 else 1
-                    isLiked.value = !isLiked.value
-                    if(isLiked.value) SoundEffects.LikeSound.play(context)
+//                    postModel.likesCount.longValue += if (isLiked.value) -1 else 1
+//                    isLiked.value = !isLiked.value
+                    if (isLiked) SoundEffects.LikeSound.play(context)
                     onLikeClicked()
                 }
                 .size(30.dp),
-            isLiked = isLiked.value,
-            likes = likesCount.longValue
+            isLiked = isLiked,
+            likes = likesCount
         )
         PostCommentsButton(
             modifier = Modifier
@@ -177,7 +187,7 @@ private fun PostActionsRow(
                     onCommentsClicked()
                 }
                 .size(30.dp),
-            commentsCount = postModel.commentsCount
+            commentsCount = commentsCount
         )
         PostShareButton(
             modifier = Modifier

@@ -5,8 +5,10 @@ import com.mobi.ripple.core.data.reply.data_source.remote.dto.EditReplyRequest
 import com.mobi.ripple.core.data.reply.data_source.remote.dto.UploadReplyRequest
 import com.mobi.ripple.core.data.common.data_source.wrappers.ApiRequest
 import com.mobi.ripple.core.data.common.data_source.wrappers.ApiResponse
+import com.mobi.ripple.core.data.reply.data_source.remote.dto.ReplyResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -14,6 +16,14 @@ import io.ktor.client.request.setBody
 class ReplyApiServiceImpl(
     private val client: HttpClient
 ) : ReplyApiService {
+    override suspend fun getLatestReplies(
+        postId: String,
+        commentId: String,
+        page: Int
+    ): ApiResponse<List<ReplyResponse>> = ApiRequest<List<ReplyResponse>> {
+        client.get(AppUrls.PostUrls.getLatestReplies(postId, commentId, page))
+    }.sendRequest()
+
     override suspend fun uploadReply(
         postId: String,
         commentId: String,

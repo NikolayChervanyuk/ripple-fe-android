@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mobi.ripple.core.presentation.components.DefaultDialog
-import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.components.DefaultSnackbar
 import com.mobi.ripple.core.presentation.components.InvalidFieldMessage
 import com.mobi.ripple.core.presentation.components.RippleInputField
@@ -68,7 +68,7 @@ fun EditProfileScreen(
     }
     DefaultDialog(
         header = {
-            DefaultHeader(
+            DefaultActionBar(
                 onBackButtonClicked = {
                     navController.popBackStack(SettingsScreenRoute, false)
                 },

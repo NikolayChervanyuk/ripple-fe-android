@@ -5,6 +5,7 @@ import com.mobi.ripple.core.data.common.data_source.wrappers.ApiResponse
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginResponse
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RegisterRequest
+import com.mobi.ripple.feature_auth.data.data_source.remote.dto.SimpleAuthUserResponse
 
 interface AuthApiService {
 
@@ -14,4 +15,6 @@ interface AuthApiService {
 
     suspend fun isUsernameTaken(username: String): ApiResponse<Boolean>
     suspend fun isEmailTaken(email: String): ApiResponse<Boolean>
+
+    suspend fun getSimpleAuthUser(username: String, shouldInvalidateTokens: Boolean): ApiResponse<SimpleAuthUserResponse>
 }

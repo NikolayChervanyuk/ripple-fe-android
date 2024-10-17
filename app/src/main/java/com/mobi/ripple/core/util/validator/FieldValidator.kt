@@ -13,6 +13,13 @@ class FieldValidator {
         const val MIN_COMMENT_LENGTH = 1
         const val MAX_COMMENT_LENGTH = 4096
 
+        const val MIN_MESSAGE_LENGTH = 1
+        const val MAX_MESSAGE_LENGTH = 4096
+
+        const val MIN_CHAT_NAME_LENGTH = 0
+        const val MAX_CHAT_NAME_LENGTH = 80
+
+
         fun isFullNameValid(fullName: String): Boolean {
             return fullName.length <= MAX_FULLNAME_LENGTH
         }
@@ -36,6 +43,14 @@ class FieldValidator {
         fun isCommentValid(comment: String): Boolean {
             return comment.length in MIN_COMMENT_LENGTH..MAX_COMMENT_LENGTH &&
                     comment.isNotBlank()
+        }
+
+        fun isChatNameValid(chatName: String): Boolean {
+            return chatName.length in MIN_CHAT_NAME_LENGTH..MAX_CHAT_NAME_LENGTH
+        }
+
+        fun isChatMessageValid(message: String): Boolean {
+            return message.length in MIN_MESSAGE_LENGTH..MAX_MESSAGE_LENGTH && message.isNotBlank()
         }
     }
 }

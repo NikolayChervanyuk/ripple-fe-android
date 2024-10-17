@@ -27,12 +27,12 @@ interface PostDao {
     @Query("SELECT * FROM postentity " +
             "ORDER BY creationDate DESC " +
             "LIMIT 1")
-    fun getFirst(): PostEntity
+    fun getFirst(): PostEntity?
 
     @Query("SELECT * FROM postentity " +
             "ORDER BY creationDate ASC " +
             "LIMIT 1")
-    fun getLast(): PostEntity
+    fun getLast(): PostEntity?
 
 
     @Query(

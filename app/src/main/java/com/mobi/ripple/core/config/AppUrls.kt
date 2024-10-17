@@ -2,7 +2,10 @@ package com.mobi.ripple.core.config
 
 sealed interface AppUrls {
     companion object {
-        const val BASE_URL = "http://192.168.1.2:8080/"
+        const val PORT = 8080
+        const val HOST = "192.168.1.2"
+        const val BASE_URL = "http://$HOST:$PORT/"
+        const val WEBSOCKET_MESSAGES_PATH = "chat-ws-messages"
     }
 
     object AuthUrls {
@@ -11,6 +14,8 @@ sealed interface AppUrls {
         const val REFRESH_TOKENS_URL: String = "auth/refresh-token"
         const val LOGOUT_URL: String = "auth/logout"
         const val USERS = "users"
+
+        fun getSimpleAuthUser(username: String) = "user?username=$username"
     }
 
     object ProfileUrls {
@@ -35,7 +40,7 @@ sealed interface AppUrls {
     object SearchUrls {
         private const val USERS = "users"
         private const val FIND_SIMPLE = "find-simple"
-        fun searchUsersLike(username: String) = "$USERS/$FIND_SIMPLE?like=$username"
+        fun searchUsersLike(username: String) = "$USERS/$FIND_SIMPLE?username=$username"
     }
 
     object PostUrls {
@@ -54,17 +59,62 @@ sealed interface AppUrls {
         fun uploadPostComment(postId: String) = postCommentsRoute(postId)
         fun likeOrUnlikeComment(postId: String, commentId: String) =
             "${postCommentsRoute(postId)}/$commentId/like"
+
         fun editDeleteComment(postId: String, commentId: String) =
             "${postCommentsRoute(postId)}?id=$commentId"
 
         private fun commentRepliesRoute(postId: String, commentId: String) =
             "${postCommentsRoute(postId)}/$commentId/replies"
 
+        fun getLatestReplies(postId: String, commentId: String, page: Int) =
+            "${commentRepliesRoute(postId, commentId)}?page=$page"
+
         fun uploadCommentReply(postId: String, commentId: String) =
             commentRepliesRoute(postId, commentId)
+
         fun likeOrUnlikeReply(postId: String, commentId: String, replyId: String) =
             "${commentRepliesRoute(postId, commentId)}/$replyId/like"
+
         fun editDeleteReply(postId: String, commentId: String, replyId: String) =
             "${commentRepliesRoute(postId, commentId)}?id=$replyId"
+    }
+
+    object ChatUrls {
+        private const val USER = "user"
+        private const val CHAT = "chat"
+
+        const val HAS_PENDING_MESSAGES = "$CHAT/has-pending"
+
+        /**
+         * @exception IllegalArgumentException If both parameters are null
+         */
+        fun findSimpleUsersLike(fullName: String?, username: String?): String {
+            if (fullName == null && username == null) {
+                throw IllegalArgumentException("FullName and username can't be both null")
+            }
+            val fullNameParam = fullName?.let {
+                if (it.isNotBlank()) "fullName=$fullName"
+                else null
+            } ?: ""
+
+            val usernameParam = username?.let {
+              if (it.isNotBlank()) "username=$username"
+              else null
+            } ?: ""
+
+            val and = if (fullNameParam != ""  && usernameParam != "") "&" else ""
+
+            return "users/find-simple?$fullNameParam$and$usernameParam"
+        }
+
+        const val CREATE_CHAT = CHAT
+
+        fun getSimpleChatUser(userId: String) = "${USER}?id=$userId"
+
+        fun getChatParticipants(chatId: String) = "$CHAT/$chatId/participants"
+
+        fun getChats(page: Int) = "$CHAT?page=$page"
+
+        fun getChatMessages(chatId: String, page: Int) = "$CHAT/$chatId/messages?page=$page"
     }
 }

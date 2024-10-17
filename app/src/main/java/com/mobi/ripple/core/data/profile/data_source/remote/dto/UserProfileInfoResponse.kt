@@ -10,7 +10,7 @@ import java.time.Instant
 
 @Serializable
 data class UserProfileInfoResponse(
-    val id: String?,
+    val id: String,
     val fullName: String?,
     val username: String,
     val email: String?,
@@ -23,6 +23,7 @@ data class UserProfileInfoResponse(
     val postsCount: Long,
 ) {
     fun asUserProfileInfo() = UserProfileInfo(
+        id = id,
         fullName = fullName,
         userName = username,
         email = email,

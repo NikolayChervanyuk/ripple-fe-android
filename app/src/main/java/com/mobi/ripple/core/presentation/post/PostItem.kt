@@ -4,55 +4,60 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mobi.ripple.core.presentation.post.components.comments.CommentAction
-import com.mobi.ripple.core.presentation.post.components.comments.CommentsBottomSheet
+import androidx.navigation.NavHostController
+import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.core.presentation.post.components.PostContent
 import com.mobi.ripple.core.presentation.post.components.PostFooter
 import com.mobi.ripple.core.presentation.post.components.PostHeader
-import com.mobi.ripple.core.presentation.posts.model.PostItemModel
+import com.mobi.ripple.core.presentation.post.components.comments.CommentAction
+import com.mobi.ripple.core.presentation.post.components.comments.CommentsBottomSheet
+import com.mobi.ripple.core.presentation.post.model.PostModel
+import com.mobi.ripple.core.presentation.profile.ProfileScreenRoute
+import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileScreenRoute
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostItem(
     modifier: Modifier = Modifier,
-    postItemModel: PostItemModel,
-    onProfileNavigationRequest: (username: String) -> Unit,
-    snackbarHost: SnackbarHostState
+    postModel: PostModel,
+    navController: NavHostController,
+    snackbarHost: SnackbarHostState,
+    onStateMutation: (PostModel) -> Unit
 ) {
 
-    val state = postItemModel.viewModel.state.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+    val model by remember { mutableStateOf(postModel) } //.viewModel.state.collectAsStateWithLifecycle()
     val showCommentsBottomSheet = remember { mutableStateOf(false) }
-    val commentsSheetState = rememberModalBottomSheetState()
 
     val refreshTrigger = remember { mutableStateOf(false) }
 
     val commentOperationInProgress = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
-        postItemModel.viewModel.onEvent(PostEvent.InitPost(postItemModel.postModel))
-        postItemModel.viewModel.eventFlow.collectLatest { event ->
+        model.eventFlow.collectLatest { event ->
             when (event) {
-                is PostViewModel.UiEvent.ShowSnackBar -> {
+                is PostModel.UiEvent.ShowSnackBar -> {
                     snackbarHost.showSnackbar(event.message)
                 }
 
-                is PostViewModel.UiEvent.ShowCommentsSection -> {
+                is PostModel.UiEvent.ShowCommentsSection -> {
                     showCommentsBottomSheet.value = true
                 }
 
-                is PostViewModel.UiEvent.CommentOperationSuccessful -> {
+                is PostModel.UiEvent.CommentOperationSuccessful -> {
                     event.message?.let { snackbarHost.showSnackbar(it) }
                     commentOperationInProgress.value = false
                     if (event.triggerRefresh) {
@@ -60,9 +65,12 @@ fun PostItem(
                     }
                 }
 
-                is PostViewModel.UiEvent.CommentOperationFailure -> {
+                is PostModel.UiEvent.CommentOperationFailure -> {
                     snackbarHost.showSnackbar(event.message)
                     commentOperationInProgress.value = false
+                }
+                is PostModel.UiEvent.StateMutated -> {
+                    onStateMutation(model)
                 }
             }
         }
@@ -80,51 +88,70 @@ fun PostItem(
             }
     ) {
         PostHeader(
-//            postSimpleUser = state.value.postSimpleUserModel.value,
-            postModel = state.value.postModel.value
+            onProfileNavigationRequest = { requestedUsername ->
+                navigateToUser(navController, requestedUsername)
+            },
+            postModel = model
         )
         PostContent(
 //            postSimpleUser = state.value.postSimpleUserModel.value,
-            postModel = state.value.postModel.value
+            postModel = model
         )
         PostFooter(
 //            postSimpleUser = state.value.postSimpleUserModel.value,
-            postModel = state.value.postModel.value,
+            postModel = model,
+            likesCount = model.likesCount.longValue,
+            isLiked = model.liked.value,
+            commentsCount = model.commentsCount.longValue,
             onLikeClicked = {
-                postItemModel.viewModel
-                    .onEvent(PostEvent.PostLikeClicked(state.value.postModel.value.id))
+                coroutineScope.launch {
+                    model.onEvent(PostEvent.PostLikeClicked(model.id.value))
+                }
             },
             onCommentsClicked = {
-                postItemModel.viewModel
-                    .onEvent(PostEvent.PostCommentsClicked(state.value.postModel.value.id))
+                coroutineScope.launch {
+                    model.onEvent(PostEvent.PostCommentsClicked(model.id.value))
+                }
             },
             onShareClicked = {
-                postItemModel.viewModel.onEvent(
-                    PostEvent.PostShareClicked(postItemModel.postModel.id)
-                )
+                coroutineScope.launch {
+                    model.onEvent(PostEvent.PostShareClicked(model.id.value))
+                }
             }
         )
     }
 
+    //TODO: During loading of posts in PostsScreen, show state gets reset. Move this to PostsScreen
     CommentsBottomSheet(
+        postId = model.id.value,
         show = showCommentsBottomSheet.value,
-        commentsFlow = state.value.postCommentsFlow,
-        commentsCount = state.value.postModel.value.commentsCount,
+        commentsFlow = model.postCommentsFlow.value,
+        commentsCount = model.commentsCount.longValue,
         refreshTrigger = refreshTrigger.value,
-        personalPfp = state.value.personalPfp.value,
-        onProfileNavigationRequest = onProfileNavigationRequest,
+        onProfileNavigationRequest = { username -> navigateToUser(navController, username) },
         operationInProgress = commentOperationInProgress.value,
-        sheetState = commentsSheetState,
+//        sheetState = commentsSheetState,
         onDismissRequest = { showCommentsBottomSheet.value = false },
         onCommentAction = { commentAction ->
             if (commentAction !is CommentAction.LikeComment &&
-                commentAction !is CommentAction.LikeReply
+                commentAction !is CommentAction.LikeReply &&
+                commentAction !is CommentAction.LoadReplies
             ) {
                 commentOperationInProgress.value = true
             }
-            postItemModel.viewModel.onEvent(
-                PostEvent.CommentActionRequested(postItemModel.postModel.id, commentAction)
-            )
+            coroutineScope.launch {
+                model.onEvent(
+                    PostEvent.CommentActionRequested(model.id.value, commentAction)
+                )
+            }
         }
     )
+}
+
+private fun navigateToUser(navController: NavHostController, username: String) {
+    GlobalAppManager.storedUsername?.let { storedUsername ->
+        if (storedUsername == username) {
+            navController.navigate(PersonalProfileScreenRoute)
+        } else navController.navigate(ProfileScreenRoute(username))
+    }
 }

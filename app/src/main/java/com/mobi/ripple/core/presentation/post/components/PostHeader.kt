@@ -1,5 +1,6 @@
 package com.mobi.ripple.core.presentation.post.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,25 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobi.ripple.core.presentation.components.ActionButton
-import com.mobi.ripple.core.presentation.components.ProfilePicture
+import com.mobi.ripple.core.presentation.components.PictureFrame
 import com.mobi.ripple.core.presentation.post.model.PostModel
-import com.mobi.ripple.core.presentation.post.model.PostSimpleUserModel
-import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.InstantPeriodTransformer
-import java.time.Instant
 
 @Composable
 fun PostHeader(
-//    postSimpleUser: PostSimpleUserModel,
+    onProfileNavigationRequest: (username: String) -> Unit,
     postModel: PostModel
 ) {
     Row(
@@ -36,12 +31,13 @@ fun PostHeader(
             .padding(5.dp),
         verticalAlignment = Alignment.Top
     ) {
-        ProfilePicture(
+        PictureFrame(
             modifier = Modifier
                 .padding(end = 10.dp)
+                .clickable { onProfileNavigationRequest(postModel.authorUsername.value) }
                 .size(38.dp),
-            profilePicture = postModel.authorPfp,
-            isActive = postModel.isAuthorActive
+            picture = postModel.authorPfp.value,
+            isActive = postModel.isAuthorActive.value
         )
         Column {
             Row(
@@ -49,15 +45,15 @@ fun PostHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                val startText = postModel.authorFullName ?: postModel.authorUsername
-                postModel.authorFullName?.let {
+                val startText = postModel.authorFullName.value ?: postModel.authorUsername.value
+                postModel.authorFullName.value?.let {
 
                     StartText(text = startText)
                 } ?: StartText(text = "@$startText")
-                postModel.authorFullName?.let {
-                    if (postModel.authorUsername.length <= 20) {
+                postModel.authorFullName.value?.let {
+                    if (postModel.authorUsername.value.length <= 20) {
                         Spacer(modifier = Modifier.width(5.dp))
-                        EndText(text = "@${postModel.authorUsername}")
+                        EndText(text = "@${postModel.authorUsername.value}")
                     }
                 }
             }
@@ -65,7 +61,7 @@ fun PostHeader(
                 modifier = Modifier.padding(top = 2.dp),
                 text = InstantPeriodTransformer
                     .transformToPassedTimeString(
-                        postModel.creationDate
+                        postModel.creationDate.value
                     )
             )
         }

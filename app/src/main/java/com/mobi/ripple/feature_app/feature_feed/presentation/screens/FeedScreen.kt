@@ -31,25 +31,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.mobi.ripple.R
 import com.mobi.ripple.core.util.RouteType
+import com.mobi.ripple.feature_app.MessageManager
 import com.mobi.ripple.feature_app.feature_feed.presentation.components.FeedTopBar
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedScreen() {
+fun FeedScreen(
+    navController: NavHostController,
+    messageManager: MessageManager
+) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            FeedTopBar(scrollBehavior)
+            FeedTopBar(
+                navController = navController,
+                scrollBehavior = scrollBehavior,
+                messageManager =  messageManager)
 
         }
     ) { innerPaddingValues ->
         Surface(
             modifier = Modifier
-                .padding(top = innerPaddingValues.calculateTopPadding() + 6.dp)
+                .padding(top = innerPaddingValues.calculateTopPadding() + 1.dp)
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxHeight(),

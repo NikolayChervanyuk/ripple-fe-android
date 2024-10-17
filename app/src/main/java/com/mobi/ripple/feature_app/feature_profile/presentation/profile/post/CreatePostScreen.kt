@@ -28,7 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.components.DefaultDialog
-import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.components.RippleMultilineInputField
 import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile.PersonalProfileEvent
@@ -79,7 +79,7 @@ fun CreatePostScreen(
             navController.popBackStack(PersonalProfileScreenRoute, false)
         },
         header = {
-            DefaultHeader(
+            DefaultActionBar(
                 onBackButtonClicked = {
                     navController.popBackStack(
                         PersonalProfileScreenRoute,

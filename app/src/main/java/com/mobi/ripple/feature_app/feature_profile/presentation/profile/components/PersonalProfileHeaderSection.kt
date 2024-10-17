@@ -416,6 +416,7 @@ private fun ProfileHeaderSectionPreview() {
     RippleTheme {
         ProfileHeaderSection(
             UserProfileInfoModel(
+                id = "",
                 fullName = "Melih John",
                 userName = "meho35",
                 email = "s@s.b",

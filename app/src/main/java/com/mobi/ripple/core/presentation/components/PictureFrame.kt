@@ -4,10 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,37 +26,42 @@ import com.mobi.ripple.R
 import com.mobi.ripple.core.theme.BrightGreen
 
 @Composable
-fun ProfilePicture(
+fun PictureFrame(
     modifier: Modifier = Modifier,
-    profilePicture: ImageBitmap?,
+    picture: ImageBitmap?,
+    placeHolderDrawableId: Int = R.drawable.user_profile_btn,
+//    placeHolderTint: Color = MaterialTheme.colorScheme.outlineVariant,
     borderWidthDp: Dp = 2.dp,
+    borderColor: Color = MaterialTheme.colorScheme.onBackground,
+    innerPadding: PaddingValues = PaddingValues(0.dp),
     isActive: Boolean = false
 ) {
-    val boxModifier = modifier
     val imageModifier = Modifier
         .fillMaxSize()
         .zIndex(1f)
         .border(
             width = borderWidthDp,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = borderColor,
             shape = CircleShape
         )
         .clip(CircleShape)
+        .padding(innerPadding)
     Box(
-        modifier = boxModifier,
+        modifier = modifier,
         contentAlignment = Alignment.BottomStart
     ) {
         ActivePin(show = isActive)
-        profilePicture?.let {
+        picture?.let {
             Image(
                 modifier = imageModifier,
-                bitmap = profilePicture,
+                bitmap = picture,
                 contentScale = ContentScale.Crop,
                 contentDescription = "user profile picture"
             )
-        } ?: Image(
+        } ?: Icon(
             modifier = imageModifier.background(color = Color.White),
-            painter = painterResource(id = R.drawable.user_profile_btn),
+//            tint = placeHolderTint,
+            painter = painterResource(id = placeHolderDrawableId),
             contentDescription = "user profile picture"
         )
     }

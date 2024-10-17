@@ -5,6 +5,7 @@ import com.mobi.ripple.feature_auth.data.data_source.remote.AuthApiService
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.asLoginRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.asRegisterRequest
 import com.mobi.ripple.feature_auth.domain.model.AuthTokens
+import com.mobi.ripple.feature_auth.domain.model.SimpleAuthUser
 import com.mobi.ripple.feature_auth.domain.model.UserLogin
 import com.mobi.ripple.feature_auth.domain.model.UserRegister
 import com.mobi.ripple.feature_auth.domain.repository.AuthRepository
@@ -34,5 +35,11 @@ class AuthRepositoryImpl(
         val apiResponse = authApiService.isEmailTaken(email)
 
         return apiResponse.toResponse(apiResponse.content)
+    }
+
+    override suspend fun getAuthUser(username: String, shouldInvalidateTokens: Boolean): Response<SimpleAuthUser?> {
+        val apiResponse = authApiService.getSimpleAuthUser(username, shouldInvalidateTokens)
+
+        return apiResponse.toResponse(apiResponse.content?.toSimpleAuthUser())
     }
 }

@@ -45,11 +45,11 @@ fun SimpleUserItem(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProfilePicture(
+        PictureFrame(
                 modifier = Modifier
                     .padding(end = 10.dp)
                     .size(38.dp),
-        profilePicture = userModel.profilePicture,
+        picture = userModel.profilePicture,
         isActive = userModel.isActive
         )
         Column(

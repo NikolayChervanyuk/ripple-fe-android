@@ -3,11 +3,10 @@ package com.mobi.ripple.feature_auth.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobi.ripple.GlobalAppManager
-import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.core.util.validator.FieldValidator
 import com.mobi.ripple.feature_auth.domain.use_case.AuthUseCases
+import com.mobi.ripple.feature_auth.presentation.register.RegisterViewModel.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,8 +45,19 @@ class LoginViewModel @Inject constructor(
                             authUseCases.loginUseCase(_state.value.user.asUserLogin())
 
                         loginResponse.content?.let {
-                            GlobalAppManager
-                                .onSuccessfulLogin(it)
+                            GlobalAppManager.storeAuthTokens(it)
+                            GlobalAppManager.storedUsername?.let { username ->
+                                val simpleAuthUserResponse =
+                                    authUseCases.getSimpleAuthUserUseCase(username, true)
+                                if (!simpleAuthUserResponse.isError) {
+                                    val authUser = simpleAuthUserResponse.content!!
+                                    GlobalAppManager.storeId(authUser.userId)
+                                    authUser.smallPfp?.let { pfp ->
+                                        GlobalAppManager.storeSmallProfilePicture(pfp)
+                                    }
+                                } else _eventFlow.emit(UiEvent.ShowSnackBar("Login failed, try again later"))
+                            }
+                            GlobalAppManager.onSuccessfulLogin()
                         } ?: _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                     } else _eventFlow.emit(UiEvent.ShowSnackBar("Invalid credentials"))
                 }

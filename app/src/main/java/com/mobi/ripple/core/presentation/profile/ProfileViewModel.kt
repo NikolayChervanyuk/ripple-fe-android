@@ -8,13 +8,16 @@ import com.mobi.ripple.core.presentation.profile.model.asUserProfileInfoModel
 import com.mobi.ripple.core.presentation.profile.model.asUserProfileSimplePostModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -86,10 +89,8 @@ class ProfileViewModel @Inject constructor(
                         .isFollowed
                     followers += if (isFollowed) -1 else 1
                     isFollowed = !isFollowed
-
-                    _state.value.userProfileInfoState.value =
-                        _state.value.userProfileInfoState.value
-                            .copy(followers = followers, isFollowed = isFollowed)
+                    _state.value.userProfileInfoState.value.isFollowed = isFollowed
+                    _state.value.userProfileInfoState.value.followers = followers
                 }
             }
 

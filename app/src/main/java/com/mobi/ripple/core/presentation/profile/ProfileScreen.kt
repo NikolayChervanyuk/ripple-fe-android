@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.mobi.ripple.core.presentation.components.ActionButton
-import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.followers_following.FollowersFollowingScreenRoute
 import com.mobi.ripple.core.presentation.followers_following.GetType
 import com.mobi.ripple.core.presentation.posts.PostsScreenRoute
@@ -64,7 +64,7 @@ fun ProfileScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        DefaultHeader(
+        DefaultActionBar(
             onBackButtonClicked = { navController.popBackStack() },
             title = state.value.userProfileInfoState.value.userName,
             actionComposable = {
@@ -91,7 +91,7 @@ fun ProfileScreen(
             ProfilePostsSection(
                 postsFlow = state.value.userProfileSimplePostsFlow,
                 onPostClicked = { index, simplePostModel ->
-                    navController.navigate(PostsScreenRoute(index, simplePostModel.authorId))
+                    navController.navigate(PostsScreenRoute(index, simplePostModel.id, simplePostModel.authorId))
                 }
             )
         }

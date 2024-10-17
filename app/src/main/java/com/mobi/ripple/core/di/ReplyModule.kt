@@ -1,5 +1,6 @@
 package com.mobi.ripple.core.di
 
+import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.core.data.reply.data_source.remote.ReplyApiService
 import com.mobi.ripple.core.data.reply.data_source.remote.ReplyApiServiceImpl
 import com.mobi.ripple.core.data.reply.repository.ReplyRepositoryImpl
@@ -23,7 +24,7 @@ object ReplyModule {
 
     @Provides
     @Singleton
-    fun provideReplyRepository(replyApiService: ReplyApiService): ReplyRepository {
-      return ReplyRepositoryImpl(replyApiService)
+    fun provideReplyRepository(replyApiService: ReplyApiService, database: AppDatabase): ReplyRepository {
+      return ReplyRepositoryImpl(replyApiService, database)
     }
 }

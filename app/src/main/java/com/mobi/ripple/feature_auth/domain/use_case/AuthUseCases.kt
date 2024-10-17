@@ -4,5 +4,6 @@ data class AuthUseCases(
     val loginUseCase: LoginUseCase,
     val registerUseCase: RegisterUseCase,
     val isUsernameTakenUseCase: IsUsernameTakenUseCase,
-    val isEmailTakenUseCase: IsEmailTakenUseCase
+    val isEmailTakenUseCase: IsEmailTakenUseCase,
+    val getSimpleAuthUserUseCase: GetSimpleAuthUserUseCase
 )

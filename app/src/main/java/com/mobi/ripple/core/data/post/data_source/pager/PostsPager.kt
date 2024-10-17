@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.mobi.ripple.core.config.ConstraintValues
+import com.mobi.ripple.core.config.ConstraintValues.Companion.POSTS_PAGE_SIZE
 import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.core.data.common.PagerHolder
 import com.mobi.ripple.core.data.post.data_source.local.PostEntity
@@ -22,9 +23,15 @@ class PostsPager(
 ) : PagerHolder<Int, PostEntity> {
     @OptIn(ExperimentalPagingApi::class)
     override fun getPager(): Pager<Int, PostEntity> {
-
         return Pager(
-            config = PagingConfig(pageSize = ConstraintValues.POSTS_PAGE_SIZE),
+            initialKey = startItemIndex,
+            config = PagingConfig(
+                pageSize = POSTS_PAGE_SIZE,
+                prefetchDistance = POSTS_PAGE_SIZE,
+                maxSize = 4 * POSTS_PAGE_SIZE,
+                jumpThreshold = 3,
+                enablePlaceholders = true
+            ),
             remoteMediator = PostRemoteMediator(
                 appDb = database,
                 apiService = apiService,

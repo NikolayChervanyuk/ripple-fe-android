@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 
 @Composable
-fun RippleBadge(modifier: Modifier = Modifier, hasNews: Boolean = false, counter: Int?) {
+fun RippleBadge(modifier: Modifier = Modifier, hasNews: Boolean = false, counter: Int? = null) {
 
     if (counter != null && counter > 0) {
         Badge(

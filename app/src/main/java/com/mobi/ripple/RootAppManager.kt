@@ -2,7 +2,7 @@ package com.mobi.ripple
 
 import android.content.Context
 import android.util.ArrayMap
-import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.Preferences
@@ -14,7 +14,6 @@ import com.mobi.ripple.feature_auth.domain.model.AuthTokens
 import io.jsonwebtoken.Jwts
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
-import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -24,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import java.util.Base64
 import javax.inject.Inject
 
@@ -32,12 +32,16 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class RootAppManager @Inject constructor(
     context: Context
 ) {
+    var isChatOpened = mutableStateOf(false)
     private val dataStoreRepository: DataStoreRepository = DataStoreRepository(context)
 
     var isUserHavingAuthTokens: Boolean = false
         private set
 
     var storedUsername: String? = null
+        private set
+
+    var storedId: String? = null
         private set
 
     private var authTokens: AuthTokens? = null
@@ -49,10 +53,12 @@ class RootAppManager @Inject constructor(
         runBlocking {
             val tokens = dataStoreRepository.getStoredAuthTokens()
             val username = dataStoreRepository.getStoredUsername()
+            val id = dataStoreRepository.getStoredId()
             if (tokens != null && username != null) {
                 isUserHavingAuthTokens = true
                 authTokens = tokens
                 storedUsername = username
+                storedId = id
             } else _eventFlow.emit(RootUiEvent.LogOut)
         }
     }
@@ -64,13 +70,28 @@ class RootAppManager @Inject constructor(
     suspend fun storeProfilePicture(imageBytes: ByteArray) {
         dataStoreRepository.saveProfilePicture(imageBytes)
     }
+
     suspend fun deleteProfilePicture() {
         dataStoreRepository.deleteProfilePicture()
+    }
+
+    suspend fun getSmallProfilePicture(): ByteArray? {
+        return dataStoreRepository.getSmallProfilePicture()
+    }
+
+    suspend fun storeSmallProfilePicture(imageBytes: ByteArray) {
+        dataStoreRepository.saveSmallProfilePicture(imageBytes)
+    }
+
+    suspend fun storeId(userId: String) {
+        dataStoreRepository.saveId(userId)
+        storedId = userId
     }
 
     fun getStoredAuthTokens(): AuthTokens? {
         return authTokens
     }
+
 
     suspend fun saveAuthTokens(authTokens: AuthTokens): Boolean {
         var storeSuccessful: Boolean
@@ -91,10 +112,17 @@ class RootAppManager @Inject constructor(
         return false
     }
 
-    suspend fun onSuccessfulLogin(authTokens: AuthTokens) {
+    suspend fun storeAuthTokens(authTokens: AuthTokens) {
         coroutineScope {
             launch {
                 saveAuthTokens(authTokens)
+            }
+        }
+    }
+
+    suspend fun onSuccessfulLogin() {
+        coroutineScope {
+            launch {
                 _eventFlow.emit(RootUiEvent.LogIn)
             }
         }
@@ -129,7 +157,7 @@ class RootAppManager @Inject constructor(
                     return AuthTokens(accessToken, refreshToken)
                 }
             } catch (e: IOException) {
-                Log.e("DataStore", "Can't read data from disk")
+                Timber.tag("DataStore").e("Can't read data from disk")
             }
             return null
         }
@@ -156,15 +184,11 @@ class RootAppManager @Inject constructor(
                 }
                 return true
             } catch (e: IOException) {
-                Log.e(
-                    "DataStore",
-                    "Cannot save authToken, writing data to disk failed. Maybe there is no free space left?"
-                )
+                Timber.tag("DataStore")
+                    .e("Cannot save authToken, writing data to disk failed. Maybe there is no free space left?")
             } catch (e: JwtClaimNotFoundException) {
-                Log.e(
-                    "DataStore",
-                    "Cannot find sub claim (the user) in the JWT token, but is required."
-                )
+                Timber.tag("DataStore")
+                    .e("Cannot find sub claim (the user) in the JWT token, but is required.")
             }
             return false
         }
@@ -194,7 +218,7 @@ class RootAppManager @Inject constructor(
                 }
                 return true
             } catch (e: IOException) {
-                Log.e("DataStore", "Can't write data to disk")
+                Timber.tag("DataStore").e("Can't write data to disk")
             }
             return false
         }
@@ -205,7 +229,7 @@ class RootAppManager @Inject constructor(
                 val preferences: Preferences = context.dataStore.data.first()
                 return preferences[usernameKey]
             } catch (e: IOException) {
-                Log.e("DataStore", "Can't read data from disk")
+                Timber.tag("DataStore").e("Can't read data from disk")
             }
             return null
         }
@@ -222,7 +246,7 @@ class RootAppManager @Inject constructor(
                 }
                 return true
             } catch (e: IOException) {
-                Log.e("DataStore", "Can't write data to disk")
+                Timber.tag("DataStore").e("Can't write data to disk")
             }
             return false
         }
@@ -232,7 +256,7 @@ class RootAppManager @Inject constructor(
                 context.dataStore.edit { it.clear() }
                 return true
             } catch (e: IOException) {
-                Log.e("DataStore", "Can't write data to disk")
+                Timber.tag("DataStore").e("Can't write data to disk")
             }
             return false
         }
@@ -250,6 +274,21 @@ class RootAppManager @Inject constructor(
             return preferences[profilePictureKey]?.decodeBase64Bytes()
         }
 
+        suspend fun saveSmallProfilePicture(imageBytes: ByteArray) {
+            val profilePictureKey =
+                stringPreferencesKey(DataStoreKeys.SMALL_PROFILE_PICTURE.keyName)
+            context.dataStore.edit {
+                it[profilePictureKey] = imageBytes.encodeBase64()
+            }
+        }
+
+        suspend fun getSmallProfilePicture(): ByteArray? {
+            val profilePictureKey =
+                stringPreferencesKey(DataStoreKeys.SMALL_PROFILE_PICTURE.keyName)
+            val preferences: Preferences = context.dataStore.data.first()
+            return preferences[profilePictureKey]?.decodeBase64Bytes()
+        }
+
         suspend fun deleteProfilePicture() {
             val profilePictureKey = stringPreferencesKey(DataStoreKeys.PROFILE_PICTURE.keyName)
             context.dataStore.edit {
@@ -257,11 +296,32 @@ class RootAppManager @Inject constructor(
             }
         }
 
+        suspend fun getStoredId(): String? {
+            val usernameKey = stringPreferencesKey(DataStoreKeys.ID.keyName)
+            try {
+                val preferences: Preferences = context.dataStore.data.first()
+                return preferences[usernameKey]
+            } catch (e: IOException) {
+                Timber.tag("DataStore").e("Can't read data from disk")
+            }
+            return null
+        }
+
+
+        suspend fun saveId(id: String) {
+            val idKey = stringPreferencesKey(DataStoreKeys.ID.keyName)
+            context.dataStore.edit {
+                it[idKey] = id
+            }
+        }
+
         private enum class DataStoreKeys(val keyName: String) {
             REFRESH_TOKEN("refresh_token"),
             ACCESS_TOKEN("access_token"),
             USERNAME("username"),
-            PROFILE_PICTURE("pfp")
+            ID("userId"),
+            PROFILE_PICTURE("pfp"),
+            SMALL_PROFILE_PICTURE("small_pfp")
         }
     }
 }

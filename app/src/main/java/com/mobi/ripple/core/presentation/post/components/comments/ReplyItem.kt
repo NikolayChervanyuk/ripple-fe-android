@@ -29,7 +29,7 @@ import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.components.HeartIcon
 import com.mobi.ripple.core.presentation.components.MediumButton
 import com.mobi.ripple.core.presentation.components.OptionItem
-import com.mobi.ripple.core.presentation.components.ProfilePicture
+import com.mobi.ripple.core.presentation.components.PictureFrame
 import com.mobi.ripple.core.presentation.effects.bounceClick
 import com.mobi.ripple.core.presentation.post.model.ReplyModel
 import com.mobi.ripple.core.theme.ErrorRed
@@ -51,7 +51,7 @@ fun ReplyItem(
     Row(
         modifier = modifier
     ) {
-        ProfilePicture(
+        PictureFrame(
             modifier = Modifier
                 .padding(end = 8.dp)
                 .clip(CircleShape)
@@ -67,7 +67,7 @@ fun ReplyItem(
                 )
                 .size(31.dp),
             borderWidthDp = 1.dp,
-            profilePicture = replyModel.authorProfilePicture
+            picture = replyModel.authorProfilePicture
         )
         Column {
             ReplyHeaderTexts(
@@ -85,7 +85,7 @@ fun ReplyItem(
         }
         Spacer(modifier = Modifier.weight(1f))
         ReplyRightColumn(
-            modifier = Modifier.padding(end = 4.dp),
+            modifier = Modifier.padding(end = 7.dp),
             reply = replyModel,
             onLikeClicked = {
                 onCommentAction(
@@ -242,7 +242,7 @@ private fun ReplyRightColumn(
         Text(
             modifier = Modifier.padding(bottom = 4.dp),
             text = InstantPeriodTransformer.transformToPassedTimeString(reply.createdDate),
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Column(
@@ -250,7 +250,7 @@ private fun ReplyRightColumn(
         ) {
             HeartIcon(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(18.dp)
                     .bounceClick { onLikeClicked() },
                 tint = if (reply.liked) LikeRed
                 else MaterialTheme.colorScheme.onSurfaceVariant
@@ -258,7 +258,7 @@ private fun ReplyRightColumn(
             Text(
                 modifier = Modifier,
                 text = FormattableNumber.format(reply.likesCount),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

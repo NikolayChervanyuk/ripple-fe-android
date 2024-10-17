@@ -3,9 +3,11 @@ package com.mobi.ripple.feature_auth.data.data_source.remote
 import com.mobi.ripple.core.config.AppUrls
 import com.mobi.ripple.core.data.common.data_source.wrappers.ApiRequest
 import com.mobi.ripple.core.data.common.data_source.wrappers.ApiResponse
+import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginRequest
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.LoginResponse
 import com.mobi.ripple.feature_auth.data.data_source.remote.dto.RegisterRequest
+import com.mobi.ripple.feature_auth.data.data_source.remote.dto.SimpleAuthUserResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -46,6 +48,16 @@ class AuthApiServiceImpl @Inject constructor(
             client.get(AppUrls.AuthUrls.USERS) {
                 parameter("email", email)
             }
+        }.sendRequest()
+    }
+
+    override suspend fun getSimpleAuthUser(
+        username: String,
+        shouldInvalidateTokens: Boolean
+    ): ApiResponse<SimpleAuthUserResponse> {
+        if (shouldInvalidateTokens) client.invalidateBearerTokens()
+        return ApiRequest<SimpleAuthUserResponse> {
+            client.get(AppUrls.AuthUrls.getSimpleAuthUser(username))
         }.sendRequest()
     }
 }

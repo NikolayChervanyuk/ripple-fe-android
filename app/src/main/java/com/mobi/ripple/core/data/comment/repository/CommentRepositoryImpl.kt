@@ -1,14 +1,11 @@
 package com.mobi.ripple.core.data.comment.repository
 
-import androidx.paging.PagingData
 import com.mobi.ripple.core.data.comment.data_source.remote.CommentApiService
 import com.mobi.ripple.core.data.comment.data_source.remote.dto.EditCommentRequest
 import com.mobi.ripple.core.data.comment.data_source.remote.dto.asUploadCommentRequest
 import com.mobi.ripple.core.domain.common.Response
-import com.mobi.ripple.core.domain.post.model.Reply
 import com.mobi.ripple.core.domain.post.model.UploadComment
 import com.mobi.ripple.core.domain.post.repository.CommentRepository
-import kotlinx.coroutines.flow.Flow
 
 class CommentRepositoryImpl(
     private val commentApiService: CommentApiService
@@ -44,12 +41,5 @@ class CommentRepositoryImpl(
         val apiResponse = commentApiService.deleteComment(postId, commentId)
 
         return apiResponse.toResponse(apiResponse.content)
-    }
-
-    override suspend fun getCommentRepliesFlow(
-        postId: String,
-        commentId: String
-    ): Flow<PagingData<Reply>> {
-        TODO("Not yet implemented")
     }
 }

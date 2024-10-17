@@ -9,37 +9,39 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.core.presentation.components.DefaultSnackbar
 import com.mobi.ripple.core.theme.RippleTheme
 import com.mobi.ripple.core.util.RouteType
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppScreen() {
+fun AppScreen(
+    messageManager: MessageManager
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val appNavController = rememberNavController()
     Scaffold(
         modifier = Modifier.safeDrawingPadding(),
-        snackbarHost = { DefaultSnackbar(hostState = snackbarHostState) },
-        bottomBar = { BottomBar(appNavController) }
+        snackbarHost = {
+            DefaultSnackbar(hostState = snackbarHostState)
+        },
+        bottomBar = {
+            if (!GlobalAppManager.isChatOpened.value) {
+                BottomBar(appNavController)
+            }
+        }
     ) { paddingValues ->
         AppNavGraph(
-            appNavController,
-            snackbarHostState,
-            coroutineScope,
-            paddingValues
+            mainNavController = appNavController,
+            snackbarHostState = snackbarHostState,
+            coroutineScope = coroutineScope,
+            messageManager = messageManager,
+            paddingValues = paddingValues
         )
     }
 }
 
 @Serializable
 object AppScreenRoute : RouteType
-
-@Preview(showSystemUi = true)
-@Composable
-private fun AppScreenPreview() {
-    RippleTheme {
-        AppScreen()
-    }
-}

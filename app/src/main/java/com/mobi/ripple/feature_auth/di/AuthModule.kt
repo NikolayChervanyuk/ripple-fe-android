@@ -5,6 +5,7 @@ import com.mobi.ripple.feature_auth.data.data_source.remote.AuthApiServiceImpl
 import com.mobi.ripple.feature_auth.data.repository.AuthRepositoryImpl
 import com.mobi.ripple.feature_auth.domain.repository.AuthRepository
 import com.mobi.ripple.feature_auth.domain.use_case.AuthUseCases
+import com.mobi.ripple.feature_auth.domain.use_case.GetSimpleAuthUserUseCase
 import com.mobi.ripple.feature_auth.domain.use_case.IsEmailTakenUseCase
 import com.mobi.ripple.feature_auth.domain.use_case.IsUsernameTakenUseCase
 import com.mobi.ripple.feature_auth.domain.use_case.LoginUseCase
@@ -40,7 +41,8 @@ object AuthModule {
             loginUseCase = LoginUseCase(authRepository),
             registerUseCase = RegisterUseCase(authRepository),
             isUsernameTakenUseCase = IsUsernameTakenUseCase(authRepository),
-            isEmailTakenUseCase = IsEmailTakenUseCase(authRepository)
+            isEmailTakenUseCase = IsEmailTakenUseCase(authRepository),
+            getSimpleAuthUserUseCase = GetSimpleAuthUserUseCase(authRepository)
         )
     }
 }

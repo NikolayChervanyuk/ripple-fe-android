@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mobi.ripple.R
 import com.mobi.ripple.core.presentation.components.DefaultDialog
-import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.components.DefaultHorizontalDivider
 import com.mobi.ripple.core.presentation.components.OptionItem
 import com.mobi.ripple.core.util.RouteType
@@ -27,7 +27,7 @@ fun SettingsScreen(
 ) {
     DefaultDialog(
         header = {
-            DefaultHeader(
+            DefaultActionBar(
                 onBackButtonClicked = {
                     navController.popBackStack(PersonalProfileScreenRoute, false)
                 },

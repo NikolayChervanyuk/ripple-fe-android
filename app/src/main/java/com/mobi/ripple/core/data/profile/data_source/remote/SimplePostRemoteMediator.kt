@@ -27,11 +27,8 @@ class SimplePostRemoteMediator(
 
             LoadType.APPEND -> {
                 val lastItem = state.lastItemOrNull()
-                if (lastItem == null) {
-                    0
-                } else {
-                    state.pages.lastIndex + 1
-                }
+                if (lastItem == null) 0
+                else state.pages.lastIndex + 1
             }
         }
 

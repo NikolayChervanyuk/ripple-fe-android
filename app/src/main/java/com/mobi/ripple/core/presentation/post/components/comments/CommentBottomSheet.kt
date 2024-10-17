@@ -25,13 +25,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -52,33 +54,42 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import androidx.paging.map
+import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.core.presentation.components.CancelButton
 import com.mobi.ripple.core.presentation.components.CircularProgressIndicatorRow
 import com.mobi.ripple.core.presentation.components.InvalidFieldMessage
-import com.mobi.ripple.core.presentation.components.ProfilePicture
+import com.mobi.ripple.core.presentation.components.PictureFrame
 import com.mobi.ripple.core.presentation.components.RippleInputField
 import com.mobi.ripple.core.presentation.components.SendIcon
 import com.mobi.ripple.core.presentation.effects.fadingEdge
 import com.mobi.ripple.core.presentation.post.model.CommentModel
+import com.mobi.ripple.core.presentation.post.model.asReplyModel
+import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.core.util.FormattableNumber
 import com.mobi.ripple.core.util.validator.FieldValidator
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsBottomSheet(
+    postId: String,
     commentsFlow: Flow<PagingData<CommentModel>>,
     commentsCount: Long,
     refreshTrigger: Boolean,
-    personalPfp: ImageBitmap?,
     onProfileNavigationRequest: (username: String) -> Unit,
     show: Boolean,
     operationInProgress: Boolean,
-    sheetState: SheetState,
+//    sheetState: SheetState,
     onDismissRequest: () -> Unit,
     onCommentAction: (CommentAction) -> Unit,
 ) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
     val window = (LocalContext.current as Activity).window
     WindowCompat.setDecorFitsSystemWindows(window, true)
 
@@ -166,7 +177,6 @@ fun CommentsBottomSheet(
                             val commentState = remember { mutableStateOf(it) }
                             CommentItem(
                                 comment = commentState.value,
-                                repliesFlow = emptyFlow(),//TODO<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                 onPfpClicked = { username ->
                                     onProfileNavigationRequest(username)
                                 },
@@ -200,7 +210,17 @@ fun CommentsBottomSheet(
                                         }
 
                                         is CommentAction.LoadReplies -> {
-                                            onCommentAction(CommentAction.LoadReplies(it.commentId))
+                                            coroutineScope.launch {
+                                                commentState.value.repliesFlow.value =
+                                                    commentState.value.postUseCases
+                                                        .getCommentRepliesFlowUseCase(
+                                                            postId,
+                                                            commentState.value.commentId
+                                                        ).map { pagingData ->
+                                                            pagingData.map { it.asReplyModel() }
+                                                        }
+                                                onCommentAction(CommentAction.LoadReplies(it.commentId))
+                                            }
                                         }
 
                                         is CommentAction.LikeReply -> {
@@ -253,7 +273,6 @@ fun CommentsBottomSheet(
                             )
                         },
                     action = commentActionState.value,
-                    personalPfp = personalPfp,
                     operationInProgress = operationInProgress,
                     onCancelAction = { commentActionState.value = CommentAction.NewComment("") },
                     onSendText = { text ->
@@ -297,11 +316,17 @@ private fun NoCommentsMessage(modifier: Modifier = Modifier) {
 private fun CommentTextField(
     modifier: Modifier = Modifier,
     action: CommentAction,
-    personalPfp: ImageBitmap?,
     operationInProgress: Boolean,
     onCancelAction: () -> Unit,
     onSendText: (String) -> Unit
 ) {
+
+    val personalPfp = remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(key1 = true) {
+        personalPfp.value = GlobalAppManager.getProfilePicture()?.let {
+            BitmapUtils.convertImageByteArrayToBitmap(it).asImageBitmap()
+        }
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -347,11 +372,11 @@ private fun CommentTextField(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfilePicture(
+            PictureFrame(
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .size(32.dp),
-                profilePicture = personalPfp,
+                picture = personalPfp.value,
                 borderWidthDp = 1.dp
             )
             RippleInputField(
@@ -367,13 +392,13 @@ private fun CommentTextField(
                     SendIcon(
                         modifier = Modifier
                             .clickable {
-                                if (FieldValidator.isCommentValid(commentText.value) &&
-                                    !operationInProgress
-                                ) {
-                                    keyboardController?.hide()
-                                    onSendText(commentText.value)
-                                } else {
-                                    showInvalidCommentMessage.value = true
+                                if (!operationInProgress) {
+                                    if (FieldValidator.isCommentValid(commentText.value)) {
+                                        keyboardController?.hide()
+                                        onSendText(commentText.value)
+                                    } else {
+                                        showInvalidCommentMessage.value = true
+                                    }
                                 }
                             }
                             .size(18.dp),

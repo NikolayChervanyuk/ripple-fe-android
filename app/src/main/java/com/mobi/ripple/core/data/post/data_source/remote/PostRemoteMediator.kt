@@ -29,7 +29,7 @@ class PostRemoteMediator(
             LoadType.PREPEND -> {
                 var firstLoadedPage: Int
                 withContext(Dispatchers.IO) {
-                    firstLoadedPage = appDb.postDao.getFirst().page
+                    firstLoadedPage = appDb.postDao.getFirst()?.page ?: 0
                 }
                 if (firstLoadedPage == 0) {
                     return MediatorResult.Success(endOfPaginationReached = true)
@@ -38,7 +38,7 @@ class PostRemoteMediator(
 
             LoadType.APPEND -> {
                 withContext(Dispatchers.IO) {
-                    appDb.postDao.getLast().page + 1
+                    (appDb.postDao.getLast()?.page?.plus(1)) ?: 0
                 }
             }
         }
@@ -60,9 +60,9 @@ class PostRemoteMediator(
                 }
                 appDb.postDao.upsertAll(postEntities)
             }
-            return MediatorResult.Success(endOfPaginationReached = apiResponse.content.isEmpty())
+
+            return MediatorResult.Success(endOfPaginationReached = false)
         }
         return MediatorResult.Error(ApiResponseException(apiResponse.httpStatusCode))
     }
-
 }

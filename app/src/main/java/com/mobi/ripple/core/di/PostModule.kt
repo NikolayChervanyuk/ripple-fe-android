@@ -66,7 +66,7 @@ object PostModule {
             changeCommentLikeStateUseCase = ChangeCommentLikeStateUseCase(commentRepository),
             editCommentUseCase = EditCommentUseCase(commentRepository),
             deleteCommentUseCase = DeleteCommentUseCase(commentRepository),
-            getCommentRepliesFlowUseCase = GetCommentRepliesFlowUseCase(commentRepository),
+            getCommentRepliesFlowUseCase = GetCommentRepliesFlowUseCase(replyRepository),
 
             uploadReplyUseCase = UploadReplyUseCase(replyRepository),
             changeReplyLikeStateUseCase = ChangeReplyLikeStateUseCase(replyRepository),
@@ -79,7 +79,8 @@ object PostModule {
     @Singleton
     fun providePostsUseCases(repository: PostRepository): PostsUseCases {
         return PostsUseCases(
-            getPostsUseCase = GetPostsUseCase(repository)
+            getPostsUseCase = GetPostsUseCase(repository),
+//            getFirstCachedPostUseCase = GetFirstCachedPostUseCase(repository)
         )
     }
 }

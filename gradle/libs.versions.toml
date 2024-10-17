@@ -23,10 +23,12 @@ roomKtx = "2.6.1"
 runtimeLivedata = "1.6.7"
 serialization = "1.6.3"
 constraintlayout = "1.0.1"
-ktor = "2.3.11"
+ktor = "2.3.12"
 mockito = "4.1.0"
 slf4jApi = "2.0.13"
 timber = "5.0.1"
+workRuntimeKtx = "2.9.1"
+hiltCommon = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -55,6 +57,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout" }
 
 # Dagger - Hilt
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
@@ -74,7 +77,9 @@ jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwtApi" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 #Ktor
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
@@ -88,6 +93,7 @@ ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", 
 kotlin-mockito = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito"}
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApi" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

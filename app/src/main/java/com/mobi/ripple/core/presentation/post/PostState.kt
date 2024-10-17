@@ -12,34 +12,34 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.time.Instant
 
-data class PostState(
-    var personalPfp: MutableState<ImageBitmap?> = mutableStateOf(null),
-    var postSimpleUserModel: MutableState<PostSimpleUserModel> = mutableStateOf(
-        PostSimpleUserModel(
-            id = "",
-            fullName = null,
-            username = "",
-            isActive = false,
-            profilePicture = null
-        )
-    ),
-    var postModel: MutableState<PostModel> = mutableStateOf(
-        PostModel(
-            id = "",
-            creationDate = Instant.MIN,
-            lastModifiedDate = Instant.MIN,
-            authorId = "",
-            authorFullName = null,
-            authorUsername = "",
-            authorPfp = null,
-            isAuthorActive = false,
-            postImage = null,
-            caption = null,
-            likesCount = 0L,
-            liked = false,
-            commentsCount = 0L
-        )
-    ),
-    var postCommentsFlow: Flow<PagingData<CommentModel>> = emptyFlow(),
-    var commentRepliesFlow: Flow<PagingData<ReplyModel>> = emptyFlow()
-)
+//data class PostState(
+//    var personalPfp: MutableState<ImageBitmap?> = mutableStateOf(null),
+////    var postSimpleUserModel: MutableState<PostSimpleUserModel> = mutableStateOf(
+////        PostSimpleUserModel(
+////            id = "",
+////            fullName = null,
+////            username = "",
+////            isActive = false,
+////            profilePicture = null
+////        )
+////    ),
+//    var postModel: MutableState<PostModel> = mutableStateOf(
+//        PostModel(
+//            id = "",
+//            creationDate = Instant.MIN,
+//            lastModifiedDate = Instant.MIN,
+//            authorId = "",
+//            authorFullName = null,
+//            authorUsername = "",
+//            authorPfp = null,
+//            isAuthorActive = false,
+//            postImage = null,
+//            caption = null,
+//            likesCount = 0L,
+//            liked = false,
+//            commentsCount = 0L
+//        )
+//    ),
+//    var postCommentsFlow: Flow<PagingData<CommentModel>> = emptyFlow(),
+//    var commentRepliesFlow: Flow<PagingData<ReplyModel>> = emptyFlow()
+//)

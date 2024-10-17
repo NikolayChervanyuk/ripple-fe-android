@@ -43,6 +43,7 @@ class FollowersFollowingViewModel @Inject constructor(
                                 state.value.followersPage++
                             )
                             if (!response.isError) {
+                                //TODO: Implement pagination
                                 _state.value.followersList.addAll(
                                     response.content!!.map { it.asFollowersFollowingSimpleUserModel() }
                                 )

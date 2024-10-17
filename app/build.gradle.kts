@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.hilt.common)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -87,6 +88,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
     implementation (libs.timber)
+    implementation(libs.androidx.work.runtime.ktx)
 
     //paging
     implementation(libs.androidx.paging.common)
@@ -101,6 +103,8 @@ dependencies {
     ksp(libs.dagger.compiler)
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation)
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     //testing
     testImplementation(libs.junit)
@@ -114,11 +118,13 @@ dependencies {
     //Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.server.default.headers)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.client.websockets)
 
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)

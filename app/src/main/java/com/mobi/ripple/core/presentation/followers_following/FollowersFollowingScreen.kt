@@ -1,7 +1,6 @@
 package com.mobi.ripple.core.presentation.followers_following
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -25,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.mobi.ripple.core.presentation.components.DefaultHeader
+import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.components.SimpleUserItem
 import com.mobi.ripple.core.presentation.profile.ProfileScreenRoute
 import com.mobi.ripple.core.theme.Shapes
@@ -75,13 +74,13 @@ fun FollowersFollowingScreen(
         }
     }
     Column {
-        DefaultHeader(
+        DefaultActionBar(
             onBackButtonClicked = { navController.popBackStack() },
             title = if (username.length > 20) {
                 username.substring(0..20) + "..."
             } else username
         )
-        DefaultHeader(
+        DefaultActionBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)

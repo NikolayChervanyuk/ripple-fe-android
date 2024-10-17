@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.mobi.ripple.core.config.BuildConfig
 import com.mobi.ripple.core.theme.OnBackgroundDarkBlue
 import com.mobi.ripple.core.theme.RippleTheme
@@ -22,6 +25,8 @@ import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.core.util.invalidateBearerTokens
 import com.mobi.ripple.feature_app.AppScreen
 import com.mobi.ripple.feature_app.AppScreenRoute
+import com.mobi.ripple.feature_app.MessageManager
+import com.mobi.ripple.feature_app.feature_chat.service.scheduled.PendingMessagesWorker
 import com.mobi.ripple.feature_auth.presentation.AuthGraphRoute
 import com.mobi.ripple.feature_auth.presentation.authGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,7 +34,10 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.Serializable
 import timber.log.Timber
+import java.time.Duration
 import javax.inject.Inject
+
+var isAppClosed: Boolean = true
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -39,6 +47,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var client: HttpClient
+
+    @Inject
+    lateinit var messageManager: MessageManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,11 +103,29 @@ class MainActivity : ComponentActivity() {
                 ) {
                     authGraph(rootNavController)
                     composable<AppScreenRoute> {
-                        AppScreen()
+                        AppScreen(messageManager)
                     }
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        isAppClosed = false
+    }
+
+    override fun onStop() {
+        super.onStop()
+        isAppClosed = true
+        val request = PeriodicWorkRequestBuilder<PendingMessagesWorker>(Duration.ofMinutes(15))
+            .addTag(PendingMessagesWorker.TAG_NAME)
+            .setConstraints(
+                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+            )
+            .build()
+        WorkManager.getInstance(applicationContext)
+            .enqueue(request)
     }
 }
 
@@ -109,3 +138,5 @@ object RootGraphRoute : RouteType
  * using a single NavHostController is not possible
  */
 lateinit var GlobalAppManager: RootAppManager
+
+//lateinit var GlobalMessageManager: MessageManager

@@ -4,6 +4,7 @@ import com.mobi.ripple.core.domain.profile.model.UserProfileInfo
 import java.time.Instant
 
 data class UserProfileInfoModel(
+    val id: String,
     var fullName: String?,
     var userName: String,
     var email: String?,
@@ -16,6 +17,7 @@ data class UserProfileInfoModel(
     var postsCount: Long
 ) {
     fun asUserProfileInfo() = UserProfileInfo(
+        id = id,
         fullName = fullName ?: "",
         userName = userName,
         email = email ?: "",
@@ -30,35 +32,18 @@ data class UserProfileInfoModel(
 
     override fun equals(other: Any?): Boolean {
         return when(other){
-            is UserProfileInfoModel ->
-                fullName.equals(other.fullName) &&
-                        userName == other.userName &&
-                        email.equals(other.email) &&
-                        bio.equals(other.bio) &&
-                        followers == other.followers &&
-                        following == other.following &&
-                        isFollowed == other.isFollowed &&
-                        isActive == other.isActive &&
-                        postsCount == other.postsCount
+            is UserProfileInfoModel -> id == other.id
             else -> false
         }
     }
 
     override fun hashCode(): Int {
-        var result = fullName?.hashCode() ?: 0
-        result = 31 * result + userName.hashCode()
-        result = 31 * result + (email?.hashCode() ?: 0)
-        result = 31 * result + (bio?.hashCode() ?: 0)
-        result = 31 * result + followers.hashCode()
-        result = 31 * result + following.hashCode()
-        result = 31 * result + isFollowed.hashCode()
-        result = 31 * result + isActive.hashCode()
-        result = 31 * result + postsCount.hashCode()
-        return result
+        return id.hashCode()
     }
 }
 
 fun UserProfileInfo.asUserProfileInfoModel() = UserProfileInfoModel(
+    id = id,
     fullName = fullName,
     userName = userName,
     email = email,

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ fun ProfilePostsSection(
     onPostClicked: (index: Int, simplePostModel: UserProfileSimplePostModel) -> Unit,
     postsFlow: Flow<PagingData<UserProfileSimplePostModel>>
 ) {
+//    val lazyGridState = rememberLazyGridState()
     val postsLazyPagingItems = postsFlow.collectAsLazyPagingItems()
     if (postsLazyPagingItems.itemCount > 0) {
 
@@ -34,6 +36,7 @@ fun ProfilePostsSection(
             CircularProgressIndicatorRow()
         } else {
             LazyVerticalGrid(
+//                state = lazyGridState,
                 modifier = Modifier
                     .fillMaxWidth(),
                 columns = GridCells.Fixed(3),
@@ -44,11 +47,12 @@ fun ProfilePostsSection(
                     count = postsLazyPagingItems.itemCount,
                     key = postsLazyPagingItems.itemKey { it.id },
                 ) { index ->
-                    val item = postsLazyPagingItems[index]
-                    SimplePostItem(
-                        imageBitmap = item?.image,
-                        onClicked = { item?.let { onPostClicked(index, it) } }
-                    )
+                    postsLazyPagingItems[index]?.let {
+                        SimplePostItem(
+                            imageBitmap = it.image,
+                            onClicked = { onPostClicked(index, it) }
+                        )
+                    }
                 }
             }
             if (postsLazyPagingItems.loadState.append is LoadState.Loading) {

@@ -1,5 +1,6 @@
 package com.mobi.ripple.core.domain.post.use_case.posts
 
 data class PostsUseCases(
-    val getPostsUseCase: GetPostsUseCase
+    val getPostsUseCase: GetPostsUseCase,
+    //val getFirstCachedPostUseCase: GetFirstCachedPostUseCase
 )

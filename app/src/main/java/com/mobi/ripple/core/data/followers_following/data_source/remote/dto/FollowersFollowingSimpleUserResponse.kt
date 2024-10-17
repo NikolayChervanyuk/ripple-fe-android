@@ -10,14 +10,15 @@ data class FollowersFollowingSimpleUserResponse(
     val fullName: String?,
     val username: String,
     val active: Boolean,
-    val smallProfilePicture: String
+    val smallProfilePicture: String?
 ) {
-
     fun asFollowersFollowingSimpleUser() = FollowersFollowingSimpleUser(
         id = id,
         fullName = fullName,
         username = username,
         isActive = active,
-        profilePicture = Base64.decode(smallProfilePicture, Base64.DEFAULT)
+        profilePicture = smallProfilePicture?.let {
+            Base64.decode(smallProfilePicture, Base64.DEFAULT)
+        }
     )
 }

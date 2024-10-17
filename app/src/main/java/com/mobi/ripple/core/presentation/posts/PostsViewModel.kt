@@ -1,15 +1,23 @@
 package com.mobi.ripple.core.presentation.posts
 
+//import com.mobi.ripple.core.presentation.post.PostViewModel
+//import com.mobi.ripple.core.presentation.posts.model.PostItemModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.mobi.ripple.core.config.ConstraintValues.Companion.POSTS_PAGE_SIZE
+import com.mobi.ripple.core.data.common.AppDatabase
+import com.mobi.ripple.core.data.post.data_source.remote.PostApiService
+import com.mobi.ripple.core.data.post.data_source.remote.PostRemoteMediator
+import com.mobi.ripple.core.domain.post.model.Post
 import com.mobi.ripple.core.domain.post.use_case.PostUseCases
 import com.mobi.ripple.core.domain.post.use_case.posts.PostsUseCases
-import com.mobi.ripple.core.presentation.post.PostViewModel
 import com.mobi.ripple.core.presentation.post.model.asPostModel
-import com.mobi.ripple.core.presentation.posts.model.PostItemModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +31,9 @@ import javax.inject.Inject
 @HiltViewModel
 class PostsViewModel @Inject constructor(
     private val postsUseCases: PostsUseCases,
-    private val postUseCases: PostUseCases
+    private val postUseCases: PostUseCases,
+    private val database: AppDatabase,
+    private val apiService: PostApiService
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PostsState())
@@ -42,10 +52,7 @@ class PostsViewModel @Inject constructor(
                         event.authorId
                     ).map { pagingData ->
                         pagingData.map {
-                            PostItemModel(
-                                it.asPostModel(),
-                                getPostViewModelInstance() //FIXME: high memory consumption causes crashes
-                            )
+                            it.asPostModel(postUseCases)
                         }
                     }.cachedIn(viewModelScope)
                 }
@@ -53,9 +60,42 @@ class PostsViewModel @Inject constructor(
         }
     }
 
-    private fun getPostViewModelInstance(): PostViewModel {
-        return PostViewModelFactory(postUseCases).create(PostViewModel::class.java)
+//    suspend fun getFirstCachedPost(): Post {
+//        return postsUseCases.getFirstCachedPostUseCase()
+//        //return _state.value.firstCachedPost
+//    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    fun initPosts(startItemIndex: Int, authorId: String) {
+        viewModelScope.launch {
+            database.postDao.clearAll()
+            state.value
+                .postsFlowState =
+                Pager(
+                    initialKey = startItemIndex,
+                    config = PagingConfig(
+                        pageSize = POSTS_PAGE_SIZE,
+                        prefetchDistance = POSTS_PAGE_SIZE,
+                        maxSize = 3 * POSTS_PAGE_SIZE,
+                        jumpThreshold = 3,
+                        enablePlaceholders = true
+                    ),
+                    remoteMediator = PostRemoteMediator(
+                        appDb = database,
+                        apiService = apiService,
+                        authorId = authorId,
+                        startItemIndex = startItemIndex
+                    ),
+                    pagingSourceFactory = { database.postDao.pagingSource() }
+                ).flow.map { pagingData ->
+                    pagingData.map { it.asPost().asPostModel(postUseCases) }
+                }.cachedIn(viewModelScope)
+        }
     }
+
+//    private fun getPostViewModelInstance(): PostViewModel {
+//        return PostViewModelFactory(postUseCases).create(PostViewModel::class.java)
+//    }
 
     sealed class UiEvent {}
 

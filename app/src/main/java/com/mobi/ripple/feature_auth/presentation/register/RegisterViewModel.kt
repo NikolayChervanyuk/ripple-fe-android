@@ -133,8 +133,26 @@ class RegisterViewModel @Inject constructor(
                                 .loginUseCase(state.value.userRegister.asUserLogin())
 
                             loginResponse.content?.let {
-                                GlobalAppManager
-                                    .onSuccessfulLogin(it)
+                                GlobalAppManager.storeAuthTokens(it)
+
+                                GlobalAppManager.storedUsername?.let { username ->
+                                    val simpleAuthUserResponse =
+                                        authUseCases.getSimpleAuthUserUseCase(username, true)
+                                    if (!simpleAuthUserResponse.isError) {
+                                        val authUser = simpleAuthUserResponse.content!!
+                                        GlobalAppManager.storeId(authUser.userId)
+                                        authUser.smallPfp?.let { pfp ->
+                                            GlobalAppManager.storeSmallProfilePicture(pfp)
+
+                                        }
+                                    } else _eventFlow.emit(
+                                        UiEvent.ShowSnackBar(
+                                            "Registration was successful, but can't log in, try again later"
+                                        )
+                                    )
+                                }
+
+                                GlobalAppManager.onSuccessfulLogin()
                             } ?: _eventFlow.emit(UiEvent.ShowSnackBar(loginResponse.errorMessage))
                         }
                     }

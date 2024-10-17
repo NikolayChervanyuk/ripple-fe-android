@@ -18,6 +18,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +50,13 @@ fun ProfileHeaderSection(
     onFollowingClicked: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val isFollowed = remember { mutableStateOf(userProfileInfo.isFollowed) }
+    val followersCount = remember { mutableLongStateOf(userProfileInfo.followers) }
+
+    LaunchedEffect(key1 = userProfileInfo) {
+        isFollowed.value = userProfileInfo.isFollowed
+        followersCount.longValue = userProfileInfo.followers
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -102,8 +112,12 @@ fun ProfileHeaderSection(
                 )
             }
             ProfileActionsRow(
-                isFollowed = userProfileInfo.isFollowed,
-                onFollowStatusChangeRequest = onFollowStateChangeRequested,
+                isFollowed = isFollowed.value,
+                onFollowStatusChangeRequest = {
+                    followersCount.longValue += if(isFollowed.value) -1 else 1
+                    isFollowed.value = !isFollowed.value
+                    onFollowStateChangeRequested()
+                },
                 onMessageRequest = { TODO("open chat room with user") }
 
             )
@@ -138,7 +152,7 @@ fun ProfileHeaderSection(
                         withStyle(
                             style = MaterialTheme.typography.titleSmall.toSpanStyle()
                         ) {
-                            append(FormattableNumber(userProfileInfo.followers).format())
+                            append(FormattableNumber(followersCount.longValue).format())
                         }
                         append(" ")
                         append("Followers")

@@ -1,7 +1,10 @@
 package com.mobi.ripple.feature_app.feature_profile.presentation.profile.profile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,12 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.mobi.ripple.core.presentation.followers_following.FollowersFollowingScreenRoute
 import com.mobi.ripple.core.presentation.followers_following.GetType
 import com.mobi.ripple.core.presentation.posts.PostsScreenRoute
 import com.mobi.ripple.core.presentation.profile.components.ProfilePostsSection
+import com.mobi.ripple.core.presentation.profile.components.SimplePostItem
 import com.mobi.ripple.core.util.RouteType
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.components.ProfileHeaderSection
 import com.mobi.ripple.feature_app.feature_profile.presentation.profile.post.CreatePostScreenRoute
@@ -30,6 +37,8 @@ fun PersonalProfileScreen(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState
 ) {
+    val state = viewModel.state.collectAsStateWithLifecycle()
+
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(
@@ -42,7 +51,6 @@ fun PersonalProfileScreen(
         }
     }
 
-    val state = viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
@@ -104,7 +112,9 @@ fun PersonalProfileScreen(
         ProfilePostsSection(
             postsFlow = state.value.userProfileSimplePostsFlow,
             onPostClicked = {index, simplePostModel ->
-                navController.navigate(PostsScreenRoute(index, simplePostModel.authorId))
+                navController.navigate(
+                    PostsScreenRoute(index, simplePostModel.id , simplePostModel.authorId)
+                )
             }
         )
     }

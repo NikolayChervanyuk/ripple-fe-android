@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 open class AuthTokens(
     open val accessToken: String,
     open val refreshToken: String
-)
+) {
+    suspend fun extractUsernameFromTokens() {
+
+    }
+}

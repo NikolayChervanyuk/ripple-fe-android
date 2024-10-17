@@ -1,5 +1,6 @@
 package com.mobi.ripple.core.data.post.data_source.local
 
+import android.util.Base64
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.mobi.ripple.core.domain.post.model.Post
@@ -15,8 +16,8 @@ data class PostEntity(
     val authorFullName: String?,
     val authorUsername: String,
     val authorActive: Boolean,
-    val authorSmallProfilePicture: ByteArray?,
-    val postImage: ByteArray,
+    val authorSmallProfilePicture: String?,
+    val postImage: String,
     val caption: String?,
     val likesCount: Long,
     val liked: Boolean,
@@ -31,8 +32,8 @@ data class PostEntity(
         authorFullName = authorFullName,
         authorUsername = authorUsername,
         isAuthorActive = authorActive,
-        authorPfp = authorSmallProfilePicture,
-        postImage = postImage,
+        authorPfp = authorSmallProfilePicture?.let { Base64.decode(it, Base64.DEFAULT) },
+        postImage = Base64.decode(postImage, Base64.DEFAULT),
         caption = caption,
         likesCount = likesCount,
         liked = liked,

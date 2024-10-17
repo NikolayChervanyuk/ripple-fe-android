@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,6 +22,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,33 +34,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.R
+import com.mobi.ripple.core.config.ConstraintValues.Companion.REPLIES_PAGE_SIZE
 import com.mobi.ripple.core.presentation.components.CircularProgressIndicatorRow
 import com.mobi.ripple.core.presentation.components.HeartIcon
 import com.mobi.ripple.core.presentation.components.MediumButton
 import com.mobi.ripple.core.presentation.components.OptionItem
-import com.mobi.ripple.core.presentation.components.ProfilePicture
+import com.mobi.ripple.core.presentation.components.PictureFrame
 import com.mobi.ripple.core.presentation.effects.bounceClick
 import com.mobi.ripple.core.presentation.post.model.CommentModel
-import com.mobi.ripple.core.presentation.post.model.ReplyModel
 import com.mobi.ripple.core.theme.ErrorRed
 import com.mobi.ripple.core.theme.LikeRed
 import com.mobi.ripple.core.theme.Shapes
 import com.mobi.ripple.core.util.FormattableNumber
 import com.mobi.ripple.core.util.InstantPeriodTransformer
-import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun CommentItem(
     comment: CommentModel,
-    repliesFlow: Flow<PagingData<ReplyModel>>,
+//    repliesFlow: Flow<PagingData<ReplyModel>>,
     onPfpClicked: (username: String) -> Unit,
     onCommentAction: (CommentAction) -> Unit,
 ) {
+    val loadedRepliesCount = remember { mutableIntStateOf(0) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -68,20 +67,25 @@ fun CommentItem(
         CommentLayout(
             comment = comment,
             onPfpClicked = onPfpClicked,
-            onCommentAction = onCommentAction
+            onCommentAction = { action ->
+                if (action is CommentAction.LoadReplies) {
+                    loadedRepliesCount.intValue += REPLIES_PAGE_SIZE
+                }
+                onCommentAction(action)
+            }
         )
 
-        val replyItemHeightDp = remember { 100 }
-        val repliesLazyItems = repliesFlow.collectAsLazyPagingItems()
+        val replyItemHeightDp = remember { 120 }
+        val repliesLazyItems = comment.repliesFlow.value.collectAsLazyPagingItems()
         val animateHeightDp by animateIntAsState(
-            targetValue = repliesLazyItems.itemCount * replyItemHeightDp,
+            targetValue = loadedRepliesCount.intValue * replyItemHeightDp,
             label = "height for reply items"
         )
-        if (repliesLazyItems.itemCount > 0) {
+        if (loadedRepliesCount.intValue > 0) {
             LazyColumn(
                 modifier = Modifier
                     .heightIn(max = animateHeightDp.dp)
-                    .height(animateHeightDp.dp)
+//                    .height(animateHeightDp.dp)
                     .padding(start = 36.dp),
                 userScrollEnabled = false
             ) {
@@ -95,7 +99,7 @@ fun CommentItem(
                     val item = repliesLazyItems[index]
                     item?.let {
                         ReplyItem(
-                            modifier = Modifier.height(replyItemHeightDp.dp),
+                            modifier = Modifier.heightIn(max = replyItemHeightDp.dp),
                             commentId = comment.commentId,
                             onPfpClicked = onPfpClicked,
                             replyModel = it,
@@ -105,10 +109,35 @@ fun CommentItem(
                 }
                 if (repliesLazyItems.loadState.append is LoadState.Loading) {
                     item { CircularProgressIndicatorRow() }
+                } else if (!repliesLazyItems.loadState.append.endOfPaginationReached) {
+                    item {
+                        LoadMoreRepliesText(
+                            onClick = {
+                                loadedRepliesCount.intValue += REPLIES_PAGE_SIZE
+                                repliesLazyItems[loadedRepliesCount.intValue - 1]
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun LoadMoreRepliesText(onClick: () -> Unit) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .clickable {
+                onClick()
+            },
+        text = "Load more replies",
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -119,12 +148,13 @@ private fun CommentLayout(
     onCommentAction: (CommentAction) -> Unit
 ) {
     val showMyCommentOptions = remember { mutableStateOf(false) }
+    val viewRepliesClicked = remember { mutableStateOf(false)}
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     ) {
-        ProfilePicture(
+        PictureFrame(
             modifier = Modifier
                 .padding(end = 8.dp)
                 .clip(CircleShape)
@@ -140,7 +170,7 @@ private fun CommentLayout(
                 )
                 .size(31.dp),
             borderWidthDp = 1.dp,
-            profilePicture = comment.authorProfilePicture
+            picture = comment.authorProfilePicture
         )
         Column {
             CommentHeaderTexts(
@@ -171,18 +201,19 @@ private fun CommentLayout(
                     .copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (comment.repliesCount > 0) {
+            if (comment.repliesCount > 0 && !viewRepliesClicked.value) {
                 Text(
                     modifier = Modifier
                         .padding(start = 42.dp)
                         .clickable {
+                            viewRepliesClicked.value = true
                             onCommentAction(
                                 CommentAction.LoadReplies(comment.commentId)
                             )
                         }
                         .padding(vertical = 6.dp),
-                    text = "View ${FormattableNumber.format(comment.repliesCount)} comment" +
-                            if(comment.repliesCount > 1) "s" else "",
+                    text = "View ${FormattableNumber.format(comment.repliesCount)} " +
+                            if (comment.repliesCount > 1) "replies" else "reply",
                     style = MaterialTheme.typography.labelMedium
                         .copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

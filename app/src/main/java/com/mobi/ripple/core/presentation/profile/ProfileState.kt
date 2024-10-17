@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.emptyFlow
 data class ProfileState(
     val userProfileInfoState: MutableState<UserProfileInfoModel> = mutableStateOf(
         UserProfileInfoModel(
+            id = "",
             fullName = "",
             userName = "",
             email = "",

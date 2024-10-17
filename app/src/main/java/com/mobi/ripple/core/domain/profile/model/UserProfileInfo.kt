@@ -3,6 +3,7 @@ package com.mobi.ripple.core.domain.profile.model
 import java.time.Instant
 
 data class UserProfileInfo(
+    val id: String,
     val fullName: String?,
     val userName: String,
     val email: String?,

@@ -8,6 +8,12 @@ class ConstraintValues {
         const val SIMPLE_POST_PAGE_SIZE = 12
         const val POSTS_PAGE_SIZE = 4
 
+        const val REPLIES_PAGE_SIZE = 10
+
         const val POST_COMMENT_PAGE_SIZE = 20
+
+        const val CHATS_PAGE_SIZE = 8
+
+        const val MESSAGES_PAGE_SIZE = 20
     }
 }
