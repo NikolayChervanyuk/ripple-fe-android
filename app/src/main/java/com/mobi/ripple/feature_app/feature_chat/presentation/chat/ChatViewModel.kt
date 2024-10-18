@@ -63,6 +63,7 @@ class ChatViewModel @AssistedInject constructor(
                     pagingData.map { message ->
                         var authorUsername: String? = null
                         var authorPfp: ImageBitmap? = null
+                        var isAuthorActive = false
 
                         when (message.eventType) {
                             ChatEventType.NEW_MESSAGE -> {
@@ -71,6 +72,7 @@ class ChatViewModel @AssistedInject constructor(
                                 authorUsername =
                                     chatModel.chatParticipants[content.senderId]?.username
                                 authorPfp = chatModel.chatParticipants[content.senderId]?.userPfp
+                                isAuthorActive = chatModel.chatParticipants[content.senderId]?.isActive ?: false
                             }
 
                             ChatEventType.CHAT_OPENED -> {
@@ -91,7 +93,12 @@ class ChatViewModel @AssistedInject constructor(
 
                             else -> {}
                         }
-
+                        if (!message.isMine && authorUsername == null) {
+                            throw IllegalStateException(
+                                "Message sent is not owned, yet no username is provided. " +
+                                        "This should be a logic error"
+                            )
+                        }
                         MessageModel(
                             messageId = message.messageId,
                             eventType = message.eventType,
@@ -102,7 +109,8 @@ class ChatViewModel @AssistedInject constructor(
                             isUnread = message.isUnread,
                             messageDataJson = message.messageDataJson,
                             authorUsername = authorUsername,
-                            authorPfp = authorPfp
+                            authorPfp = authorPfp,
+                            isAuthorActive = isAuthorActive
                         )
                     }
                 }
@@ -131,6 +139,12 @@ class ChatViewModel @AssistedInject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun markChatMessagesAsRead() {
+        viewModelScope.launch {
+            messageManager.cacheManager.database.messageDao.markAsRead(chatId)
         }
     }
 

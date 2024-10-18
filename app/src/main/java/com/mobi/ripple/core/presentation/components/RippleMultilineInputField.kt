@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ fun RippleMultilineInputField(
     readOnly: Boolean = false,
     onTextChanged: (String) -> Unit,
     minLines: Int = 3,
+    maxLines: Int = minLines,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
 ) {
@@ -50,9 +52,12 @@ fun RippleMultilineInputField(
     var isFocused by remember {
         mutableStateOf(false)
     }
+    LaunchedEffect(key1 = text) {
+        textEntered = text
+    }
     BasicTextField(
         modifier = modifier
-            .heightIn(min = 43.dp)
+            .heightIn(min = 36.dp)
             .border(
                 width = 1.dp,
                 color = colorScheme.outline,
@@ -78,6 +83,7 @@ fun RippleMultilineInputField(
         },
         cursorBrush = SolidColor(colorScheme.onSurface),
         minLines = minLines,
+        maxLines = maxLines
     ) { innerTextField ->
         Row(
             modifier = Modifier

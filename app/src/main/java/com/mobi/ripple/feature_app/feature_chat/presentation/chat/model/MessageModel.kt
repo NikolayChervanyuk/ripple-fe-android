@@ -14,5 +14,6 @@ data class MessageModel(
     val isUnread: Boolean,
     val messageDataJson: String,
     val authorUsername: String?,
-    val authorPfp: ImageBitmap?
+    val authorPfp: ImageBitmap?,
+    val isAuthorActive: Boolean
 )

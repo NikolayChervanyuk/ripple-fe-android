@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mobi.ripple.GlobalAppManager
 import com.mobi.ripple.R
+import com.mobi.ripple.core.presentation.components.PictureFrame
 import com.mobi.ripple.core.presentation.components.RippleBadge
 import com.mobi.ripple.core.util.BitmapUtils
 import com.mobi.ripple.core.util.RouteType
@@ -168,19 +169,19 @@ fun BottomBar(navController: NavHostController) {
     }
     val navStackBackEntry by navController.currentBackStackEntryAsState()
 
-//    val coroutineScope = rememberCoroutineScope()
-//    val personalPfp = remember { mutableStateOf<ImageBitmap?>(null) }
-//    LaunchedEffect(key1 = true) {
-//        coroutineScope.launch {
-//            personalPfp.value = GlobalAppManager.getProfilePicture()?.let {
-//                val outputStream = ByteArrayOutputStream()
-//                BitmapUtils.convertImageByteArrayToBitmap(it)
-//                    .compress(Bitmap.CompressFormat.JPEG, 20, outputStream)
-//                BitmapUtils.convertImageByteArrayToBitmap(outputStream.toByteArray())
-//                    .asImageBitmap()
-//            }
-//        }
-//    }
+    val coroutineScope = rememberCoroutineScope()
+    val personalPfp = remember { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(key1 = true) {
+        coroutineScope.launch {
+            personalPfp.value = GlobalAppManager.getSmallProfilePicture()?.let {
+                val outputStream = ByteArrayOutputStream()
+                BitmapUtils.convertImageByteArrayToBitmap(it)
+                    .compress(Bitmap.CompressFormat.JPEG, 20, outputStream)
+                BitmapUtils.convertImageByteArrayToBitmap(outputStream.toByteArray())
+                    .asImageBitmap()
+            }
+        }
+    }
 
     LaunchedEffect(key1 = navStackBackEntry) {
         when (navStackBackEntry?.destination?.route) {
@@ -220,19 +221,21 @@ fun BottomBar(navController: NavHostController) {
                         contentAlignment = Alignment.Center
                     ) {
                         //Icon TODO: show pfp image
-//                        if (index == 3) {
-//                            personalPfp.value?.let {
-//                                ProfilePicture(
-//                                    modifier = Modifier.size(bottomNavBarIconSize + 7.dp),
-//                                    profilePicture = personalPfp.value,
-//                                    borderColor = colorScheme.primary,
-//                                    borderWidthDp = if (
-//                                        selectedItemIndex.intValue == index
-//                                    ) 2.dp else 0.dp
-//                                )
-//                            }
-//                        }
-//                        else
+                        if (index == 3) {
+                            val borderColor = colorScheme.primary
+                            personalPfp.value?.let {
+                                PictureFrame(
+                                    modifier = Modifier.size(bottomNavBarIconSize + 7.dp),
+                                    picture = personalPfp.value,
+                                    borderColor = borderColor,
+                                    borderWidthDp = if (
+                                        selectedItemIndex.intValue == index
+                                    ) 2.dp else 0.dp
+                                )
+                            } ?: if (index == selectedItemIndex.intValue) item.selectedIcon()
+                            else item.unselectedIcon()
+                        }
+                        else
                         if ((index == selectedItemIndex.intValue)) {
                             item.selectedIcon()
                         } else item.unselectedIcon()

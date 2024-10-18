@@ -13,5 +13,5 @@ data class ParticipantRemovedContent @OptIn(ExperimentalSerializationApi::class)
 //    @EncodeDefault val type: ChatEventType = ChatEventType.PARTICIPANT_REMOVED,
     val chatId: String,
     val removerId: String,
-    val removedParticipantId: String
+    val removedUserId: String
 ) : GenericContent//()

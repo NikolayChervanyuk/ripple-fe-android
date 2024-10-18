@@ -50,6 +50,7 @@ class ChatsRemoteMediator(
             .ifEmpty { return MediatorResult.Success(endOfPaginationReached = true) }
         try {
             appDb.withTransaction {
+                appDb.chatDao.upsertAllChats(chats)
                 coroutineScope {
                     for (chat in chats) {
                         if (!appDb.messageDao.hasChatMessages(chat.chatId)) {
@@ -76,7 +77,6 @@ class ChatsRemoteMediator(
                         }
                     }
                 }
-                appDb.chatDao.upsertAllChats(chats)
             }
 
         } catch (ex: ApiResponseException) {

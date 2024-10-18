@@ -45,4 +45,7 @@ interface MessageDao {
     )
     suspend fun getUnreadMessagesCount(): Int
 
+    @Query("UPDATE messageentity SET isUnread = 0 WHERE chatId = :chatId")
+    suspend fun markAsRead(chatId: String)
+
 }

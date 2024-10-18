@@ -61,7 +61,7 @@ class MessageManager(
             ) {
                 isConnectionOpened = true
                 webSocketSession = this
-                while (isConnectionOpened && !isAppClosed) {
+                while (true) {
                     val message = receiveDeserialized<GenericMessage>()
                     cacheManager.cache(message)
                     _receivedMessagesFlow.emit(message)

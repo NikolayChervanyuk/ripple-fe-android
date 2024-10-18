@@ -90,13 +90,14 @@ fun FeedTopBar(
                             navController.navigate(ChatsScreenRoute)
                         }
                     }
-                    .size(30.dp)
-                    .padding(2.dp),
+                    .padding(top = 3.dp)
+                    .padding(2.dp)
+                    .size(30.dp),
                 badge = {
                     RippleBadge(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .offset(x = 0.dp, y = (-5).dp)
+                            .offset(x = 1.dp, y = (-4).dp)
                             .scale(1f),
                         counter = unreadMessageCount.intValue
                     )

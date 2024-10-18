@@ -148,7 +148,7 @@ class MessageCacheManager(
                 val removerUsername =
                     database.participantDao.getById(content.removerId).username
                 val removedUsername =
-                    database.participantDao.getById(content.removedParticipantId).username
+                    database.participantDao.getById(content.removedUserId).username
                 messageEntity = MessageEntity(
                     id = 0,
                     eventType = message.eventType,
