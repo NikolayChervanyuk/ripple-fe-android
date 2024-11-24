@@ -10,7 +10,18 @@ import androidx.exifinterface.media.ExifInterface
 class BitmapUtils {
     companion object {
         fun convertImageByteArrayToBitmap(imageData: ByteArray): Bitmap {
-            return BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
+            val maxTargetSize = 4_600_000
+            var sampleSize = 1
+            var sizeForSample = imageData.size
+            while (sizeForSample > maxTargetSize) {
+                sizeForSample /= 4
+                sampleSize *= 2
+            }
+
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+            }
+            return BitmapFactory.decodeByteArray(imageData, 0, imageData.size, options)
         }
 
         fun getExifRotation(context: Context, uri: Uri): Int {
@@ -32,7 +43,8 @@ class BitmapUtils {
         fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
             if (degrees == 0) return bitmap
             val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            return Bitmap.createBitmap(bitmap, 0, 0,
+                bitmap.width, bitmap.height, matrix, true)
         }
     }
 }

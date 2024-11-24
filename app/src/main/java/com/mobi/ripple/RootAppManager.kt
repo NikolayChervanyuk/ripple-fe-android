@@ -35,6 +35,7 @@ class RootAppManager @Inject constructor(
     var isChatOpened = mutableStateOf(false)
     private val dataStoreRepository: DataStoreRepository = DataStoreRepository(context)
 
+
     var isUserHavingAuthTokens: Boolean = false
         private set
 
@@ -50,17 +51,27 @@ class RootAppManager @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
-        runBlocking {
-            val tokens = dataStoreRepository.getStoredAuthTokens()
-            val username = dataStoreRepository.getStoredUsername()
-            val id = dataStoreRepository.getStoredId()
-            if (tokens != null && username != null) {
-                isUserHavingAuthTokens = true
-                authTokens = tokens
-                storedUsername = username
-                storedId = id
-            } else _eventFlow.emit(RootUiEvent.LogOut)
+        runBlocking { updateFields() }
+    }
+
+    suspend fun clearAll() {
+        dataStoreRepository.clearAllPreferences()
+        deleteSmallProfilePicture()
+        deleteProfilePicture()
+        updateFields()
+    }
+
+    private suspend fun updateFields() {
+        authTokens = dataStoreRepository.getStoredAuthTokens()
+        storedUsername = dataStoreRepository.getStoredUsername()
+        storedId = dataStoreRepository.getStoredId()
+        if (authTokens != null && storedUsername != null) {
+            isUserHavingAuthTokens = true
+        } else {
+            isUserHavingAuthTokens = false
+            _eventFlow.emit(RootUiEvent.LogOut)
         }
+
     }
 
     suspend fun getProfilePicture(): ByteArray? {
@@ -83,47 +94,46 @@ class RootAppManager @Inject constructor(
         dataStoreRepository.saveSmallProfilePicture(imageBytes)
     }
 
+    suspend fun deleteSmallProfilePicture() {
+        return dataStoreRepository.deleteSmallProfilePicture()
+    }
+
     suspend fun storeId(userId: String) {
         dataStoreRepository.saveId(userId)
-        storedId = userId
+        updateFields()
     }
 
     fun getStoredAuthTokens(): AuthTokens? {
         return authTokens
     }
 
-
     suspend fun saveAuthTokens(authTokens: AuthTokens): Boolean {
-        var storeSuccessful: Boolean
-        runBlocking { storeSuccessful = dataStoreRepository.saveTokens(authTokens) }
-        this.authTokens = authTokens
-        isUserHavingAuthTokens = true
-        storedUsername = dataStoreRepository.getStoredUsername()
+        var storeSuccessful: Boolean = dataStoreRepository.saveTokens(authTokens)
+        updateFields()
         return storeSuccessful
     }
 
-    private suspend fun clearAuthTokensAndUsername(): Boolean {
-        if (dataStoreRepository.clearTokensAndUsername()) {
-            authTokens = null
-            storedUsername = null
-            isUserHavingAuthTokens = false
-            return true
-        }
-        return false
-    }
+//    private suspend fun clearAuthTokensAndUsername(): Boolean {
+//        if (dataStoreRepository.clearTokensAndUsername()) {
+//            updateFields()
+//            return true
+//        }
+//        return false
+//    }
 
-    suspend fun storeAuthTokens(authTokens: AuthTokens) {
-        coroutineScope {
-            launch {
-                saveAuthTokens(authTokens)
-            }
-        }
-    }
+//    suspend fun storeAuthTokens(authTokens: AuthTokens) {
+//        coroutineScope {
+//            launch {
+//                saveAuthTokens(authTokens)
+//            }
+//        }
+//    }
 
     suspend fun onSuccessfulLogin() {
         coroutineScope {
             launch {
                 _eventFlow.emit(RootUiEvent.LogIn)
+                updateFields()
             }
         }
     }
@@ -131,7 +141,8 @@ class RootAppManager @Inject constructor(
     suspend fun onLogout(routeToLoginPage: Boolean = true) {
         coroutineScope {
             launch {
-                clearAuthTokensAndUsername()
+                clearAll()
+                updateFields()
             }
             if (routeToLoginPage) {
                 _eventFlow.emit(RootUiEvent.LogOut)
@@ -293,6 +304,12 @@ class RootAppManager @Inject constructor(
             val profilePictureKey = stringPreferencesKey(DataStoreKeys.PROFILE_PICTURE.keyName)
             context.dataStore.edit {
                 it.remove(profilePictureKey)
+            }
+        }
+        suspend fun deleteSmallProfilePicture() {
+            val smallProfilePictureKey = stringPreferencesKey(DataStoreKeys.SMALL_PROFILE_PICTURE.keyName)
+            context.dataStore.edit {
+                it.remove(smallProfilePictureKey)
             }
         }
 

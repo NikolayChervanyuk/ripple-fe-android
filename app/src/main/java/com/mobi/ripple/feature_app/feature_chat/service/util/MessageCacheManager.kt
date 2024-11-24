@@ -28,7 +28,8 @@ class MessageCacheManager(
     suspend fun cache(
         message: GenericMessage,
         isMine: Boolean = false,
-        isUnread: Boolean = !isMine
+        isUnread: Boolean = !isMine,
+        isSent: Boolean = true,
     ): MessageEntity? {
         //TODO: create listener in GlobalAppManager
         val messageEntity: MessageEntity
@@ -43,6 +44,7 @@ class MessageCacheManager(
                     defaultTextMessage = content.message,
                     isMine = isMine,
                     isUnread = isUnread,
+                    isSent = isSent,
                     messageDataJson = Json.encodeToString(content)
                 )
                 database.messageDao.upsertMessage(messageEntity)
@@ -59,6 +61,7 @@ class MessageCacheManager(
                     defaultTextMessage = "${openedChatUser.username} opened chat",
                     isMine = isMine,
                     isUnread = isUnread,
+                    isSent = isSent,
                     messageDataJson = Json.encodeToString(content)
                 )
                 database.messageDao.upsertMessage(messageEntity)
@@ -76,7 +79,8 @@ class MessageCacheManager(
                         message,
                         participants,
                         isMine,
-                        isUnread
+                        isUnread,
+                        isSent
                     )
                 } else {
                     Timber.w("Chat participants can't be retrieved because API returned error response")
@@ -118,6 +122,7 @@ class MessageCacheManager(
                     defaultTextMessage = defaultMessage, //getDefaultChatMessageText(message),
                     isMine = isMine,
                     isUnread = isUnread,
+                    isSent = isSent,
                     messageDataJson = Json.encodeToString(content)
                 )
                 database.messageDao.upsertMessage(messageEntity)
@@ -137,6 +142,7 @@ class MessageCacheManager(
                     defaultTextMessage = "$leftUsername left the chat",
                     isMine = isMine,
                     isUnread = isUnread,
+                    isSent = isSent,
                     messageDataJson = Json.encodeToString(content)
                 )
                 database.messageDao.upsertMessage(messageEntity)
@@ -157,6 +163,7 @@ class MessageCacheManager(
                     defaultTextMessage = "$removerUsername removed $removedUsername from the group",
                     isMine = isMine,
                     isUnread = isUnread,
+                    isSent = isSent,
                     messageDataJson = Json.encodeToString(content)
                 )
                 database.messageDao.upsertMessage(messageEntity)
@@ -173,7 +180,8 @@ class MessageCacheManager(
         message: GenericMessage,
         participants: List<SimpleChatUser>,
         isMine: Boolean,
-        isUnread: Boolean
+        isUnread: Boolean,
+        isSent: Boolean
     ): MessageEntity {
         val content = message.messageData as ChatCreatedContent
         database.withTransaction {
@@ -215,6 +223,7 @@ class MessageCacheManager(
             } ?: "New group created - ${content.chatName}",
             isMine = isMine,
             isUnread = isUnread,
+            isSent = isSent,
             messageDataJson = Json.encodeToString(content)
         )
         database.messageDao.upsertMessage(messageEntity)

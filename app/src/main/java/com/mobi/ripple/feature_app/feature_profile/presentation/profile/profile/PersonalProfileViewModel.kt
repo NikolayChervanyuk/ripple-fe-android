@@ -125,6 +125,7 @@ class PersonalProfileViewModel @Inject constructor(
                                         .convertImageByteArrayToBitmap(compressedImageBytes)
                                         .asImageBitmap()
                                 GlobalAppManager.storeProfilePicture(compressedImageBytes)
+
                             } else {
                                 _eventFlow.emit(
                                     UiEvent.ShowSnackbar("Failed to upload image, try again later")
@@ -318,19 +319,14 @@ class PersonalProfileViewModel @Inject constructor(
         imageBytes: ByteArray,
         imageUri: Uri,
         quality: Float = 0.75f
-        //maxBytes: Int = ConstraintValues.MAX_IMAGE_SIZE_BYTES
     ): ByteArray {
         val finalQuality = if (quality < 0.2 || quality > 0.95) 0.75f else quality
-
         var bitmap = BitmapUtils.convertImageByteArrayToBitmap(imageBytes)
 
         val rotationAngle = BitmapUtils.getExifRotation(context, imageUri)
         bitmap = BitmapUtils.rotateBitmap(bitmap, rotationAngle)
 
-        val outputStream = ByteArrayOutputStream(
-            imageBytes.size
-//            (imageBytes.size.toFloat() * (qualityCoefficient + delta)).toInt()
-        )
+        val outputStream = ByteArrayOutputStream(imageBytes.size)
         bitmap.compress(
             Bitmap.CompressFormat.JPEG,
             (finalQuality * 100).toInt(),

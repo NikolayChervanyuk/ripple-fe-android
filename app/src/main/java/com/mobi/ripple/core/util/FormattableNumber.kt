@@ -49,9 +49,12 @@ class FormattableNumber {
             if (magnitude == 0) {
                 return num.toString()
             }
-            if (shouldTrimAfterComma) return num.toString() + Magnitude.entries[magnitude].label
-            return num.toString() + (if (trailingNumber == 0L && shouldTrimOnZero) "" else ".$trailingNumber") +
-                    Magnitude.entries[magnitude].label
+            if (shouldTrimAfterComma) {
+                return num.toString() + Magnitude.entries[magnitude].label
+            }
+            return num.toString() +
+                    (if (trailingNumber == 0L && shouldTrimOnZero) ""
+                    else ".$trailingNumber") + Magnitude.entries[magnitude].label
         }
 
         fun format(number: Int, shouldTrimAfterComma: Boolean = false): String {

@@ -1,5 +1,5 @@
 @file:UseSerializers(InstantSerializer::class)
-package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto
+package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto
 
 import android.util.Base64
 import com.mobi.ripple.core.util.InstantSerializer

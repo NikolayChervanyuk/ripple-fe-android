@@ -14,13 +14,9 @@ class ApiRequest<C>(
         "No request was made because provided 'httpResponseFunction' returned null",
     @Transient val httpResponseFunction: (suspend () -> HttpResponse?)? = null
 ) {
-
     var data: C? = null
     var errorMessage: String? = null
-
     suspend inline fun <reified T : C> sendRequest(): ApiResponse<T> {
-
-
         try {
             val httpResponse = httpResponseFunction!!.invoke()
                 ?: return ApiResponse(
@@ -30,7 +26,6 @@ class ApiRequest<C>(
                     isError = true
                 )
             val statusCode = httpResponse.status
-
             if(statusCode == HttpStatusCode.NotFound) {
                 return ApiResponse(
                     content = null,
@@ -42,7 +37,6 @@ class ApiRequest<C>(
             if(statusCode == HttpStatusCode.Unauthorized) {
                 GlobalAppManager.onLogout()
             }
-
             val isError = statusCode.value > 299
             val parsedResponse = httpResponse.body<ApiRequest<T>>()
             return ApiResponse(
@@ -60,6 +54,5 @@ class ApiRequest<C>(
                 isError = true
             )
         }
-
     }
 }

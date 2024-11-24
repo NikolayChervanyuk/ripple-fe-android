@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = ChatsViewModel.ChatsViewModelFactory::class)
@@ -38,9 +37,11 @@ class ChatsViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            _state.value.chatsFlow = chatUseCases.getChatsFlowUseCase(messageManager.cacheManager).map { pagingData ->
-                pagingData.map { it.asSimpleChatModel() }
-            }
+            _state.value.chatsFlow = chatUseCases
+                .getChatsFlowUseCase(messageManager.cacheManager)
+                .map { pagingData ->
+                    pagingData.map { it.asSimpleChatModel() }
+                }
         }
     }
 
@@ -51,7 +52,16 @@ class ChatsViewModel @AssistedInject constructor(
             }
 
             is ChatsEvent.SearchChatsTextChanged -> {
-                if(event.text.isBlank()) return
+                if (event.text.isBlank()) {
+                    viewModelScope.launch {
+                        _state.value.chatsFlow = chatUseCases
+                            .getChatsFlowUseCase(messageManager.cacheManager)
+                            .map { pagingData ->
+                                pagingData.map { it.asSimpleChatModel() }
+                            }
+                    }
+                    return
+                }
                 searchTextChangedJob = viewModelScope.launch {
                     searchTextChangedJob?.cancel()
                     delay(250)

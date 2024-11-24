@@ -233,6 +233,8 @@ fun CommentsBottomSheet(
                                         }
 
                                         is CommentAction.EditReply -> {
+                                            commentAction.text = it.comment
+                                            commentActionState.value = commentAction
                                             onCommentAction(
                                                 CommentAction.EditReply(
                                                     commentAction.commentId,

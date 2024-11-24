@@ -3,7 +3,7 @@ package com.mobi.ripple.core.config
 sealed interface AppUrls {
     companion object {
         const val PORT = 8080
-        const val HOST = "192.168.1.2"
+        const val HOST = "192.168.1.4"
         const val BASE_URL = "http://$HOST:$PORT/"
         const val WEBSOCKET_MESSAGES_PATH = "chat-ws-messages"
     }

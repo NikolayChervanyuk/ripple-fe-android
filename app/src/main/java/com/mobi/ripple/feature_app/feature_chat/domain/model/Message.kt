@@ -11,5 +11,6 @@ data class Message(
     val defaultTextMessage: String,
     val isMine: Boolean,
     val isUnread: Boolean,
+    val isSent: Boolean,
     val messageDataJson: String
 )

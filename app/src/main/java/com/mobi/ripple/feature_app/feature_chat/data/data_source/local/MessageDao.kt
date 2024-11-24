@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import java.time.Instant
 
@@ -48,4 +49,9 @@ interface MessageDao {
     @Query("UPDATE messageentity SET isUnread = 0 WHERE chatId = :chatId")
     suspend fun markAsRead(chatId: String)
 
+    @Update
+    suspend fun updateMessage(message: MessageEntity)
+
+    @Query("SELECT * FROM messageentity WHERE id = :id")
+    suspend fun getMessageById(id: Long): MessageEntity
 }

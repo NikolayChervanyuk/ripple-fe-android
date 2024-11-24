@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatApiService
-import com.mobi.ripple.feature_app.feature_chat.domain.use_case.ChatUseCases
 import com.mobi.ripple.feature_app.feature_chat.service.util.MessageCacheManager
 import com.mobi.ripple.feature_app.feature_chat.service.util.NotificationHandler
 import io.ktor.client.HttpClient

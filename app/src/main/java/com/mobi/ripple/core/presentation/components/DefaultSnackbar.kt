@@ -1,8 +1,11 @@
 package com.mobi.ripple.core.presentation.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme.typography
@@ -30,6 +33,7 @@ fun DefaultSnackbar(hostState: SnackbarHostState, modifier: Modifier = Modifier)
         SnackbarHost(
             hostState = hostState,
             modifier = Modifier
+                .consumeWindowInsets(WindowInsets.ime)
                 .constrainAs(snackBar) {
                     bottom.linkTo(parent.bottom, margin = 80.dp)
                     start.linkTo(parent.start)

@@ -16,6 +16,7 @@ data class MessageEntity(
     val defaultTextMessage: String,
     val isMine: Boolean,
     val isUnread: Boolean,
+    val isSent: Boolean,
     val messageDataJson: String
 ) {
 
@@ -27,6 +28,7 @@ data class MessageEntity(
         defaultTextMessage = defaultTextMessage,
         isMine = isMine,
         isUnread = isUnread,
+        isSent = isSent,
         messageDataJson = messageDataJson
     )
 }

@@ -1,6 +1,6 @@
 @file:UseSerializers(InstantSerializer::class)
 
-package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto
+package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto
 
 import com.mobi.ripple.core.util.InstantSerializer
 import com.mobi.ripple.feature_app.feature_chat.service.dto.content.ChatCreatedContent
@@ -25,7 +25,6 @@ import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor

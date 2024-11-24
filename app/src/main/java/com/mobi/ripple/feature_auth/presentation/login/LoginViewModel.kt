@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(
                             authUseCases.loginUseCase(_state.value.user.asUserLogin())
 
                         loginResponse.content?.let {
-                            GlobalAppManager.storeAuthTokens(it)
+                            GlobalAppManager.saveAuthTokens(it)
                             GlobalAppManager.storedUsername?.let { username ->
                                 val simpleAuthUserResponse =
                                     authUseCases.getSimpleAuthUserUseCase(username, true)

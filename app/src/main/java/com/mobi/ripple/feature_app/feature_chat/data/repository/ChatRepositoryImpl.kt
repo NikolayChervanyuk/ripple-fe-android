@@ -7,8 +7,8 @@ import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.core.domain.common.Response
 import com.mobi.ripple.feature_app.feature_chat.data.data_source.pager.ChatsPager
 import com.mobi.ripple.feature_app.feature_chat.data.data_source.pager.MessagesPager
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatApiService
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.NewChatRequest
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.ChatApiService
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.NewChatRequest
 import com.mobi.ripple.feature_app.feature_chat.domain.model.Message
 import com.mobi.ripple.feature_app.feature_chat.domain.model.SimpleChat
 import com.mobi.ripple.feature_app.feature_chat.domain.model.SimpleChatUser

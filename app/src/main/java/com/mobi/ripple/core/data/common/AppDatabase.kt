@@ -32,7 +32,7 @@ import com.mobi.ripple.feature_app.feature_chat.data.data_source.local.Participa
         ParticipantChatEntity::class,
         ParticipantEntity::class
     ],
-    version = 1
+    version = 3
 )
 @TypeConverters(InstantConverter::class, ChatEventConverter::class)
 abstract class AppDatabase : RoomDatabase() {

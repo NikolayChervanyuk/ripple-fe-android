@@ -38,7 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
-var GlobalMessageManager: MessageManager? = null
+//var GlobalMessageManager: MessageManager? = null
 
 @Composable
 fun AppNavGraph(
@@ -48,20 +48,20 @@ fun AppNavGraph(
     messageManager: MessageManager,
     paddingValues: PaddingValues
 ) {
-    LaunchedEffect(key1 = true) {
-        GlobalMessageManager = messageManager
-        coroutineScope.launch {
-            GlobalMessageManager!!.openConnection()
-        }
-    }
-    DisposableEffect(key1 = true) {
-        onDispose {
-            coroutineScope.launch {
-                GlobalMessageManager = null
-                messageManager.closeConnection()
-            }
-        }
-    }
+//    LaunchedEffect(key1 = true) {
+//        GlobalMessageManager = messageManager
+//        coroutineScope.launch {
+//            GlobalMessageManager!!.openConnection()
+//        }
+//    }
+//    DisposableEffect(key1 = true) {
+//        onDispose {
+//            coroutineScope.launch {
+////                GlobalMessageManager = null
+//                messageManager.closeConnection()
+//            }
+//        }
+//    }
     NavHost(
         navController = mainNavController,
         startDestination = FeedScreenRoute,

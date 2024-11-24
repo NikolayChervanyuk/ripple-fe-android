@@ -50,7 +50,8 @@ fun FeedTopBar(
         mutableIntStateOf(0)
     }
     LaunchedEffect(key1 = true) {
-        unreadMessageCount.intValue = messageManager.cacheQueries.getUnreadMessagesCount()
+        unreadMessageCount.intValue =
+            messageManager.cacheManager.database.messageDao.getUnreadMessagesCount()
     }
     TopAppBar(
         modifier = Modifier

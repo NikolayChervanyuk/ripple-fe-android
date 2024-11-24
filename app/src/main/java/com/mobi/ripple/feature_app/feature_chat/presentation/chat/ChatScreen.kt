@@ -5,20 +5,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -47,7 +53,7 @@ import com.mobi.ripple.core.presentation.components.DefaultActionBar
 import com.mobi.ripple.core.presentation.components.DefaultCircularProgressIndicator
 import com.mobi.ripple.core.presentation.components.DefaultSnackbar
 import com.mobi.ripple.core.presentation.components.PictureFrame
-import com.mobi.ripple.core.presentation.components.RippleInputField
+import com.mobi.ripple.core.presentation.components.ReloadButton
 import com.mobi.ripple.core.presentation.components.RippleMultilineInputField
 import com.mobi.ripple.core.presentation.components.SendIcon
 import com.mobi.ripple.core.theme.Shapes
@@ -79,18 +85,18 @@ fun ChatScreen(
     val messageLazyItems = state.value
         .messagesFlow.collectAsLazyPagingItems()
 
-    LaunchedEffect(key1 = messageLazyItems.loadState.refresh) {
-        if(messageLazyItems.loadState.refresh is LoadState.NotLoading) {
-            lazyColumnState.requestScrollToItem(0)
-        }
-    }
+//    LaunchedEffect(key1 = messageLazyItems.loadState.refresh) {
+//        if(messageLazyItems.loadState.refresh is LoadState.NotLoading) {
+//            lazyColumnState.requestScrollToItem(0)
+//        }
+//    }
 
     LaunchedEffect(key1 = true) {
         viewModel.markChatMessagesAsRead()
         viewModel.messageManager.receivedMessagesFlow.collectLatest {
             if (MessageResolver.getChatId(it) == chatId) {
                 messageLazyItems.refresh()
-                lazyColumnState.requestScrollToItem(0)
+                lazyColumnState.animateScrollToItem(0)
             }
         }
         viewModel.eventFlow.collectLatest { event ->
@@ -99,12 +105,10 @@ fun ChatScreen(
                     snackBarState.showSnackbar(event.errorMessage)
                 }
 
-                is ChatViewModel.UiEvent.MessageCached -> {
+                is ChatViewModel.UiEvent.MessageCached, ChatViewModel.UiEvent.MessageSent -> {
                     messageLazyItems.refresh()
-                    lazyColumnState.requestScrollToItem(0)
+                    lazyColumnState.animateScrollToItem(0)
                 }
-
-                is ChatViewModel.UiEvent.MessageSent -> {}
             }
         }
     }
@@ -139,7 +143,9 @@ fun ChatScreen(
                     contentType = messageLazyItems.itemContentType { it }
                 ) { index ->
                     messageLazyItems[index]?.let { message ->
-                        MessageItem(messageModel = message)
+                        MessageItem(messageModel = message, onResendMessage = {
+                            viewModel.onEvent(ChatEvent.ResendNewMessage(message))
+                        })
                     } ?: DefaultCircularProgressIndicator()
                 }
             }
@@ -150,8 +156,11 @@ fun ChatScreen(
                     .padding(6.dp),
                 onSendMessage = { messageData ->
                     SoundEffects.NewMessage.play(context)
-                    viewModel.onEvent(ChatEvent.SendMessageRequested(messageData))
+                    viewModel.onEvent(ChatEvent.SendNewMessageRequested(messageData))
                     messageLazyItems.refresh()
+                    sharedCoroutineScope.launch {
+                        lazyColumnState.requestScrollToItem(0)
+                    }
                 }
             )
         }
@@ -159,7 +168,10 @@ fun ChatScreen(
 }
 
 @Composable
-private fun MessageItem(messageModel: MessageModel) {
+private fun MessageItem(
+    messageModel: MessageModel,
+    onResendMessage: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,6 +181,7 @@ private fun MessageItem(messageModel: MessageModel) {
             else Arrangement.Start
         } else Arrangement.Center
     ) {
+        val isResending = remember { mutableStateOf(false) }
         when (messageModel.eventType) {
             ChatEventType.NEW_MESSAGE -> {
                 Row(
@@ -216,6 +229,35 @@ private fun MessageItem(messageModel: MessageModel) {
                                 MaterialTheme.colorScheme.background
                             } else MaterialTheme.colorScheme.onBackground
                         )
+                        if (messageModel.isMine && !messageModel.isSent) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(3.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                ReloadButton(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .padding(4.dp)
+                                        .size(24.dp),
+                                    tint = MaterialTheme.colorScheme.background,
+                                    onClick = {
+                                        isResending.value = true
+                                        onResendMessage()
+                                    }
+                                )
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .background(color = Color.Transparent)
+                                        .padding(top = 4.dp),
+                                    text = if (isResending.value) "Sending..."
+                                        else "Sending message failed",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.background
+                                )
+                            }
+                        }
                         Text(
                             modifier = Modifier.background(color = Color.Transparent),
                             text = InstantPeriodTransformer.transformToPassedTimeString(messageModel.sentDate),
@@ -269,7 +311,8 @@ private fun SendMessageRow(
     } else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically) {
+        verticalAlignment = Alignment.CenterVertically
+    ) {
 
         Row(
             modifier = Modifier.weight(.9f)

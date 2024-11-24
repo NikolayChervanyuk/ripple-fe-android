@@ -7,8 +7,8 @@ import com.mobi.ripple.core.config.ConstraintValues.Companion.CHATS_PAGE_SIZE
 import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.core.data.common.PagerHolder
 import com.mobi.ripple.feature_app.feature_chat.data.data_source.local.ChatEntity
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatApiService
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatsRemoteMediator
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.ChatApiService
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.ChatsRemoteMediator
 import com.mobi.ripple.feature_app.feature_chat.service.util.MessageCacheManager
 
 class ChatsPager(

@@ -31,8 +31,13 @@ data class UserProfileInfoModel(
     )
 
     override fun equals(other: Any?): Boolean {
-        return when(other){
-            is UserProfileInfoModel -> id == other.id
+        return when (other) {
+            is UserProfileInfoModel -> id == other.id &&
+                    fullName == other.fullName &&
+                    userName == other.userName &&
+                    email == other.email &&
+                    bio == other.bio
+
             else -> false
         }
     }

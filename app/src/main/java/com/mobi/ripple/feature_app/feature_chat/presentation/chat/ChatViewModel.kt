@@ -11,7 +11,6 @@ import com.mobi.ripple.feature_app.feature_chat.presentation.chat.model.toChatMo
 import com.mobi.ripple.feature_app.feature_chat.presentation.chats.model.asSimpleChatModel
 import com.mobi.ripple.feature_app.feature_chat.presentation.model.asSimpleChatUserModel
 import com.mobi.ripple.feature_app.feature_chat.service.dto.message.ChatEventType
-import com.mobi.ripple.feature_app.feature_chat.service.dto.message.GenericMessage
 import com.mobi.ripple.feature_app.feature_chat.service.dto.content.ChatCreatedContent
 import com.mobi.ripple.feature_app.feature_chat.service.dto.content.ChatOpenedContent
 import com.mobi.ripple.feature_app.feature_chat.service.dto.content.NewMessageContent
@@ -43,6 +42,8 @@ class ChatViewModel @AssistedInject constructor(
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
+
+    private val activeMessageIdResends = mutableSetOf<Long>()
 
     init {
         viewModelScope.launch {
@@ -107,6 +108,7 @@ class ChatViewModel @AssistedInject constructor(
                             defaultTextMessage = message.defaultTextMessage,
                             isMine = message.isMine,
                             isUnread = message.isUnread,
+                            isSent = message.isSent,
                             messageDataJson = message.messageDataJson,
                             authorUsername = authorUsername,
                             authorPfp = authorPfp,
@@ -119,7 +121,7 @@ class ChatViewModel @AssistedInject constructor(
 
     fun onEvent(event: ChatEvent) {
         when (event) {
-            is ChatEvent.SendMessageRequested -> {
+            is ChatEvent.SendNewMessageRequested -> {
                 viewModelScope.launch {
                     val newMessage = NewMessage(
                         eventType = ChatEventType.NEW_MESSAGE,
@@ -132,11 +134,34 @@ class ChatViewModel @AssistedInject constructor(
                             fileExtension = event.messageData.fileExtension
                         )
                     )
-                    messageManager.cacheMessage(newMessage)
-                    _eventFlow.emit(UiEvent.MessageCached)
+//                    val cachedMessage = messageManager.cacheMessage(newMessage)
+//                    _eventFlow.emit(UiEvent.MessageCached)
                     if(messageManager.sendMessage(newMessage)){
+//                        cachedMessage?.let {
+//                            messageManager.cacheManager.database.messageDao
+//                                .updateMessage(it.copy(isSent = true))
+//                        }
+                        _eventFlow.emit(UiEvent.MessageSent)
+                    } else {
+                        messageManager.cacheMessage(newMessage)
+                        _eventFlow.emit(UiEvent.MessageCached)
+                    }
+                }
+            }
+            is ChatEvent.ResendNewMessage -> {
+                viewModelScope.launch {
+                    if(activeMessageIdResends.contains(event.message.messageId)) {
+                        return@launch
+                    }
+                    activeMessageIdResends.add(event.message.messageId)
+                    if(messageManager.sendMessage(event.message.toNewMessage())) {
+                        val cachedMessage = messageManager.cacheManager.database.messageDao
+                            .getMessageById(event.message.messageId)
+                        messageManager.cacheManager.database.messageDao
+                            .updateMessage(cachedMessage.copy(isSent = true, sentDate = Instant.now()))
                         _eventFlow.emit(UiEvent.MessageSent)
                     }
+                    activeMessageIdResends.remove(event.message.messageId)
                 }
             }
         }

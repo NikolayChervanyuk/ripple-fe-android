@@ -1,12 +1,12 @@
-package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http
+package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote
 
 import com.mobi.ripple.core.data.common.SimpleUserResponse
 import com.mobi.ripple.core.data.common.data_source.wrappers.ApiResponse
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.GetChatResponse
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.GetMessageResponse
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.NewChatRequest
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.NewChatResponse
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto.SimpleChatUserResponse
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.GetChatResponse
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.GetMessageResponse
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.NewChatRequest
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.NewChatResponse
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto.SimpleChatUserResponse
 
 interface ChatApiService {
     suspend fun hasPendingMessages(): ApiResponse<Boolean>

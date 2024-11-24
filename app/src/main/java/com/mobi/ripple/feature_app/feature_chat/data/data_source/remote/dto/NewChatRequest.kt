@@ -1,4 +1,4 @@
-package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.dto
+package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.dto
 
 import kotlinx.serialization.Serializable
 

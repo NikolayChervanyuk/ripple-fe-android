@@ -31,7 +31,7 @@ class SettingsViewModel @Inject constructor(
         when (event) {
             is SettingsEvent.LogoutRequested -> {
                 viewModelScope.launch {
-                    GlobalAppManager.deleteProfilePicture()
+                    GlobalAppManager.clearAll()
                     GlobalAppManager.onLogout()
                 }
             }
@@ -42,7 +42,7 @@ class SettingsViewModel @Inject constructor(
                     if (result.isError) {
                         //Show error
                     } else {
-                        GlobalAppManager.deleteProfilePicture()
+                        GlobalAppManager.clearAll()
                         GlobalAppManager.onLogout()
                     }
                 }

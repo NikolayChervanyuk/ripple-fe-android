@@ -31,6 +31,7 @@ import com.mobi.ripple.feature_auth.presentation.AuthGraphRoute
 import com.mobi.ripple.feature_auth.presentation.authGraph
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.Serializable
 import timber.log.Timber
@@ -66,7 +67,14 @@ class MainActivity : ComponentActivity() {
             RippleTheme {
                 GlobalAppManager = rootAppManager
                 val rootNavController = rememberNavController()
+                LaunchedEffect(key1 = isAppClosed) {
+                    if(GlobalAppManager.isUserHavingAuthTokens) {
+                        if(!isAppClosed) {
+                            messageManager.openConnection()
+                        } else messageManager.closeConnection()
+                    }
 
+                }
                 val startScreen: RouteType =
                     if (GlobalAppManager.isUserHavingAuthTokens) AppScreenRoute
                     else AuthGraphRoute
@@ -118,10 +126,15 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         isAppClosed = true
-        val request = PeriodicWorkRequestBuilder<PendingMessagesWorker>(Duration.ofMinutes(15))
+        val request = PeriodicWorkRequestBuilder<PendingMessagesWorker>(
+            Duration.ofMinutes(15)
+        )
             .addTag(PendingMessagesWorker.TAG_NAME)
             .setConstraints(
-                Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresDeviceIdle(true)
+                    .build()
             )
             .build()
         WorkManager.getInstance(applicationContext)

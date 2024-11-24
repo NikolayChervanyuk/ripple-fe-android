@@ -3,8 +3,8 @@ package com.mobi.ripple.feature_app.feature_chat.di
 import android.content.Context
 import com.mobi.ripple.core.data.common.AppDatabase
 import com.mobi.ripple.feature_app.MessageManager
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatApiService
-import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http.ChatApiServiceImpl
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.ChatApiService
+import com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.ChatApiServiceImpl
 import com.mobi.ripple.feature_app.feature_chat.data.repository.ChatRepositoryImpl
 import com.mobi.ripple.feature_app.feature_chat.domain.repository.ChatRepository
 import com.mobi.ripple.feature_app.feature_chat.domain.use_case.ChatUseCases

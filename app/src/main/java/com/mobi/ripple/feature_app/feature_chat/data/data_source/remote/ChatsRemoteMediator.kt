@@ -1,4 +1,4 @@
-package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote.http
+package com.mobi.ripple.feature_app.feature_chat.data.data_source.remote
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType

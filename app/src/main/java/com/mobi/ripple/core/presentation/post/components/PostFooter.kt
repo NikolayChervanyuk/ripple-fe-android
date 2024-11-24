@@ -171,7 +171,7 @@ private fun PostActionsRow(
                 .bounceClick {
 //                    postModel.likesCount.longValue += if (isLiked.value) -1 else 1
 //                    isLiked.value = !isLiked.value
-                    if (isLiked) SoundEffects.LikeSound.play(context)
+                    if (!isLiked) SoundEffects.LikeSound.play(context)
                     onLikeClicked()
                 }
                 .size(30.dp),

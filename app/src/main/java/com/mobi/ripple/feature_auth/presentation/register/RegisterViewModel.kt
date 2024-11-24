@@ -133,7 +133,7 @@ class RegisterViewModel @Inject constructor(
                                 .loginUseCase(state.value.userRegister.asUserLogin())
 
                             loginResponse.content?.let {
-                                GlobalAppManager.storeAuthTokens(it)
+                                GlobalAppManager.saveAuthTokens(it)
 
                                 GlobalAppManager.storedUsername?.let { username ->
                                     val simpleAuthUserResponse =
